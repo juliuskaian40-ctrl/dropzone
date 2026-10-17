@@ -1,7 +1,128 @@
+
 <!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101116"><meta name="description" content="DROPZONE – aktuelle Fortnite Map und Item-Shop"><title>DROPZONE — Fortnite Intel</title><link rel="stylesheet" href="styles.css"></head>
-<body><header class="topbar"><a class="brand" href="#top"><span class="mark">D</span><span>DROP<span class="accent">ZONE</span><small>FORTNITE INTEL</small></span></a><nav><a href="#maps">MAPS</a><a href="#shop">ITEM SHOP</a></nav><span class="live"><i></i><span id="apiStatus">LIVE DASHBOARD</span></span></header>
-<main id="top"><section class="hero"><div class="eyebrow">— DEIN FORTNITE DASHBOARD</div><h1>DROP IN.<br><span>STAY INFORMED.</span></h1><p>Die aktuelle Insel. Der heutige Shop. Alles auf einen Blick.</p><div class="meta"><span>● COMMUNITY-DASHBOARD</span><span id="updated">DATEN WERDEN GELADEN …</span></div></section>
-<section id="maps" class="section"><div class="section-head"><div><div class="kicker">01 / BATTLE INTEL</div><h2>Die Map</h2></div><button id="refreshMap" class="btn ghost">↻ Map aktualisieren</button></div><div class="tabs"><button class="tab active" data-mode="br">BATTLE ROYALE</button><button class="tab" data-mode="reload">RELOAD <small>BETA</small></button></div><div class="panel"><div class="panel-head"><div><span class="status"><i></i> AKTUELLE INSEL</span><h3 id="mapTitle">Battle Royale Map</h3><p id="mapSubtitle">Aktuelle Kartenansicht von der Daten-API</p></div><span class="code">MAP_001</span></div><div id="mapFrame" class="map-frame"><div class="loading"><b></b>MAP WIRD GELADEN</div></div><div class="map-foot"><span id="poiCount">POIs werden geladen</span><span>Quelle: Fortnite-API</span></div><div id="reloadNotice" class="notice hidden">Eine separate aktuelle Reload-Karte ist über die derzeit angebundene Datenquelle nicht verifiziert. Deshalb zeigen wir hier keine erfundene Karte.</div></div></section>
-<section id="shop" class="section"><div class="section-head"><div><div class="kicker">02 / DAILY ROTATION</div><h2>Item-Shop <em>/ Heute</em></h2></div><button id="refreshShop" class="btn primary">↻ Shop aktualisieren</button></div><div class="toolbar panel"><div class="count"><strong id="itemCount">—</strong><span>ITEMS IM SHOP</span></div><label class="search">⌕ <input id="search" type="search" placeholder="Item suchen …" aria-label="Item suchen"></label><select id="sort" aria-label="Sortieren"><option value="default">Standard</option><option value="name">Name A–Z</option><option value="price">Preis aufsteigend</option></select></div><p id="shopMessage" class="message">Der heutige Shop wird geladen …</p><div id="shopGrid" class="grid"></div><p class="footnote">Shop-Daten kommen von einer unabhängigen Community-API. Direkt nach dem täglichen Reset kann es zu Verzögerungen kommen.</p></section><aside class="disclaimer"><b>i</b><p>DROPZONE ist ein unabhängiges Fanprojekt und steht nicht in Verbindung mit Epic Games. Fortnite und zugehörige Marken gehören ihren jeweiligen Rechteinhabern.</p></aside></main>
-<footer><a class="brand" href="#top"><span class="mark">D</span><span>DROP<span class="accent">ZONE</span></span></a><span>BUILT FOR THE DROP · <span id="year"></span></span><a href="https://fortnite-api.com/" target="_blank" rel="noreferrer">API-QUELLE ↗</a></footer><script src="app.js"></script></body></html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0912">
+  <meta name="description" content="DROPZONE – Fortnite Item-Shop und Maps">
+  <title>DROPZONE — Fortnite Intel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top">
+      <span class="mark">D</span>
+      <span>DROP<span class="accent">ZONE</span>
+        <small>FORTNITE INTEL</small>
+      </span>
+    </a>
+    <nav>
+      <a href="#maps">Maps</a>
+      <a href="#shop">Item-Shop</a>
+    </nav>
+    <span class="live"><i></i><span id="apiStatus">VERBINDE …</span></span>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="eyebrow"><span class="pulse"></span> DEIN FORTNITE DASHBOARD</div>
+      <h1>DROP IN.<br><span>OWN THE NIGHT.</span></h1>
+      <p>Dein Shop. Deine Map. Dein Dropzone.</p>
+      <div class="hero-meta">
+        <span>COMMUNITY PROJECT</span>
+        <span id="updated">DATEN WERDEN GELADEN …</span>
+      </div>
+    </section>
+
+    <section id="maps" class="section">
+      <div class="section-head">
+        <div>
+          <div class="kicker">01 / BATTLE INTEL</div>
+          <h2>Maps <em>&amp; Locations</em></h2>
+        </div>
+        <button id="refreshMap" class="btn ghost">↻ Aktualisieren</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-mode="br">BATTLE ROYALE</button>
+        <button class="tab" data-mode="reload">RELOAD <small>BETA</small></button>
+      </div>
+
+      <div class="panel map-panel">
+        <div class="panel-head">
+          <div>
+            <span class="status"><i></i> <span id="mapStatus">VERBINDUNG WIRD GEPRÜFT</span></span>
+            <h3 id="mapTitle">Battle Royale</h3>
+            <p id="mapSubtitle">Die aktuelle Inselkarte</p>
+          </div>
+          <span class="code" id="mapCode">MAP_001</span>
+        </div>
+
+        <div id="mapFrame" class="map-frame">
+          <div class="loading"><span class="spinner"></span> KARTE WIRD GELADEN</div>
+        </div>
+        <div class="map-foot">
+          <span id="poiCount">KARTENDATEN WERDEN GELADEN</span>
+          <span>Quelle: Fortnite-API</span>
+        </div>
+        <div id="reloadNotice" class="notice hidden">
+          <strong>Reload-Karte nicht verfügbar</strong>
+          <p>Für diese Karte liegt aktuell keine verifizierte Datenquelle vor. Es wird keine Karte erfunden.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="shop" class="section">
+      <div class="section-head">
+        <div>
+          <div class="kicker">02 / DAILY ROTATION</div>
+          <h2>Item-Shop <em>/ Heute</em></h2>
+        </div>
+        <button id="refreshShop" class="btn primary">↻ Shop laden</button>
+      </div>
+
+      <div class="toolbar panel">
+        <div class="count">
+          <strong id="itemCount">—</strong>
+          <span>SHOP-EINTRÄGE</span>
+        </div>
+        <label class="search">
+          <span>⌕</span>
+          <input id="search" type="search" placeholder="Skins suchen …" aria-label="Skins suchen">
+        </label>
+        <select id="sort" aria-label="Sortierung">
+          <option value="default">Standard</option>
+          <option value="name">Name A–Z</option>
+          <option value="price">Preis aufsteigend</option>
+        </select>
+      </div>
+
+      <p id="shopMessage" class="message" role="status">Der Item-Shop wird geladen …</p>
+      <div id="shopGrid" class="grid"></div>
+
+      <p class="footnote">
+        Preise werden nur angezeigt, wenn sie dem einzelnen Item eindeutig zugeordnet werden können.
+        Paketpreise sind keine Einzelpreise.
+      </p>
+    </section>
+
+    <aside class="disclaimer">
+      <b>i</b>
+      <p>DROPZONE ist ein unabhängiges Fanprojekt und steht nicht in Verbindung mit Epic Games.
+      Fortnite und zugehörige Marken gehören ihren jeweiligen Rechteinhabern.</p>
+    </aside>
+  </main>
+
+  <footer>
+    <a class="brand" href="#top">
+      <span class="mark">D</span>
+      <span>DROP<span class="accent">ZONE</span></span>
+    </a>
+    <span>BUILT FOR THE DROP · <span id="year"></span></span>
+    <a href="https://fortnite-api.com/" target="_blank" rel="noreferrer">API-QUELLE ↗</a>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
