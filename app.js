@@ -25,7 +25,9 @@ const translations = {
   }
 };
 
-const SHOP_URL = `/api/shop?language=${encodeURIComponent(getLanguage())}`;
+// API key for the Fortnite API
+const API_KEY = "613bf376-b744-4781-917f-707018a83c9a";
+const SHOP_URL = "https://fortnite-api.com/v2/shop";
 
 function getLanguage() {
   return localStorage.getItem("dropzone-language") || "de";
@@ -62,29 +64,46 @@ async function loadShop() {
   grid.replaceChildren();
 
   try {
-    // The API key is kept server-side in the Cloudflare Pages Function.
-    // Never place a private API key in this public frontend file.
-    const response = await fetch(SHOP_URL, { headers: { Accept: "application/json" } });
-    if (!response.ok) throw new Error(`Shop API returned ${response.status}`);
+    const response = await fetch(
+      `${SHOP_URL}?language=${encodeURIComponent(getLanguage())}`,
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `ApiKey ${API_KEY}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Shop API returned ${response.status}`);
+    }
 
     const json = await response.json();
     const entries = json?.data?.entries || [];
+
     if (!entries.length) {
       status.textContent = translations[getLanguage()].noItems;
       status.dataset.state = "done";
       return;
     }
 
-    const items = entries.flatMap(entry => entry.items || []).slice(0, 36);
-    items.forEach(item => {
+    entries.flatMap(entry =>
+      (entry.items || []).map(item => ({ item, entry }))
+    ).slice(0, 36).forEach(({ item, entry }) => {
       const card = document.createElement("article");
       card.className = "shop-card";
 
       const image = document.createElement("img");
       image.loading = "lazy";
       image.alt = item.name || "Fortnite item";
-      image.src = item.images?.icon || item.images?.featured || item.images?.smallIcon || "";
-      image.onerror = () => { image.style.visibility = "hidden"; };
+      image.src =
+        item.images?.icon ||
+        item.images?.featured ||
+        item.images?.smallIcon ||
+        "";
+      image.onerror = () => {
+        image.style.visibility = "hidden";
+      };
 
       const body = document.createElement("div");
       body.className = "shop-card-body";
@@ -94,7 +113,10 @@ async function loadShop() {
 
       const price = document.createElement("p");
       const amount = entry.finalPrice ?? entry.regularPrice;
-      price.textContent = amount != null ? `${amount} V-Bucks` : (item.type?.displayValue || "Fortnite");
+      price.textContent =
+        amount != null
+          ? `${amount} V-Bucks`
+          : (item.type?.displayValue || "Fortnite");
 
       body.append(title, price);
       card.append(image, body);
@@ -112,9 +134,13 @@ async function loadShop() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const languageSelect = document.getElementById("languageSelect");
+
   if (languageSelect) {
     languageSelect.value = getLanguage();
-    languageSelect.addEventListener("change", () => applyLanguage(languageSelect.value));
+    languageSelect.addEventListener("change", () => {
+      applyLanguage(languageSelect.value);
+      loadShop();
+    });
   }
 
   const refresh = document.getElementById("refreshShop");
