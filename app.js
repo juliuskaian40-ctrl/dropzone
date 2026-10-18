@@ -29,9 +29,27 @@ function setStatus(message, online = false) {
   );
 }
 
-function getShopEntries(data) {
-  const entries = data?.data?.entries;
-  return Array.isArray(entries) ? entries : [];
+function getShopEntries(response) {
+  const data = response?.data;
+
+  // Ältere/alternative Antworten liefern die Items direkt als Array.
+  if (Array.isArray(data)) return data;
+
+  // Manche Shop-Antworten liefern eine einzelne entries-Liste.
+  if (Array.isArray(data?.entries)) return data.entries;
+
+  // Fortnite-API kann den Shop nach Bereichen aufteilen
+  // (z. B. featured, daily, specialFeatured).
+  if (data && typeof data === "object") {
+    const sections = Object.values(data);
+    const entries = sections.flatMap(section =>
+      Array.isArray(section?.entries) ? section.entries : []
+    );
+
+    if (entries.length) return entries;
+  }
+
+  return [];
 }
 
 function getItemName(item) {
