@@ -1,4 +1,3 @@
-
 "use strict";
 
 const API_URL = "https://fortnite-api.com/v2/shop?language=de";
