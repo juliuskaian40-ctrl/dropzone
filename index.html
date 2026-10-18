@@ -1,75 +1,106 @@
 
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0c0714">
-  <title>DROPZONE | Fortnite Dashboard</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script src="./app.js" defer></script>
-</head>
-<body>
-  <header class="topbar">
-    <a href="#home" class="logo"><span>DROP</span>ZONE<span class="dot">.</span></a>
-    <nav>
-      <a href="#home">Dashboard</a>
-      <a href="#shop">Item Shop</a>
-    </nav>
-    <span class="live"><span></span> FORTNITE</span>
-  </header>
+<!-- DROPZONE: Fortnite Maps -->
+<section class="dz-extra-section" id="fortniteMaps">
+  <div class="dz-section-heading">
+    <div>
+      <span class="dz-eyebrow">EXPLORE THE ISLAND</span>
+      <h2>FORTNITE MAPS</h2>
+      <p>Entdecke die aktuellen Karten und Points of Interest.</p>
+    </div>
+    <button class="dz-action-btn" id="refreshMaps" type="button">
+      Karte aktualisieren
+    </button>
+  </div>
 
-  <main id="home">
-    <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">YOUR FORTNITE HUB</p>
-        <h1>DROP INTO<br><span>THE ACTION.</span></h1>
-        <p class="hero-description">
-          Entdecke die neuesten Fortnite-Items und finde deine nächsten Lieblingsskins.
-        </p>
-        <a class="main-button" href="#shop">SHOP ENTDECKEN ↘</a>
-      </div>
-      <div class="hero-graphic" aria-hidden="true">
-        <div class="orbit orbit-a"></div>
-        <div class="orbit orbit-b"></div>
-        <div class="emblem">DZ<small>DROPZONE</small></div>
-        <span class="floating floating-a">ITEM SHOP</span>
-        <span class="floating floating-b">BATTLE ROYALE</span>
-      </div>
-    </section>
-
-    <section id="shop" class="shop-section">
-      <div class="section-label">01 / DAILY ROTATION</div>
-
-      <div class="section-heading">
+  <div class="dz-map-grid">
+    <article class="dz-map-card">
+      <div class="dz-map-title">
         <div>
-          <p class="eyebrow">THE LATEST DROPS</p>
-          <h2>ITEM <span>SHOP</span></h2>
-          <p class="subheading">Aktuelle Angebote mit Bildern, Seltenheit und Preisen.</p>
+          <span class="dz-map-tag">BATTLE ROYALE</span>
+          <h3>Battle Royale Map</h3>
         </div>
-        <button id="refreshShop" class="refresh-button" type="button">↻ Neu laden</button>
+        <span class="dz-live-dot">LIVE DATA</span>
       </div>
 
-      <div class="toolbar">
-        <input id="shopSearch" type="search" placeholder="⌕  Suche nach Items ..." aria-label="Items suchen">
-        <span id="itemCount">LÄDT ...</span>
+      <div class="dz-map-image-wrap">
+        <img id="brMapImage" alt="Aktuelle Fortnite Battle Royale Karte"
+             loading="lazy">
+        <div class="dz-map-loading" id="brMapStatus">
+          Battle-Royale-Karte wird geladen ...
+        </div>
       </div>
 
-      <div id="shopStatus" class="status" role="status" aria-live="polite">
-        <span class="spinner"></span> Item-Shop wird geladen ...
+      <div class="dz-map-footer">
+        <span id="brMapInfo">Aktuelle Karte</span>
+        <a id="brMapOpen" href="https://fortnite-api.com/"
+           target="_blank" rel="noopener noreferrer">
+          Karte öffnen ↗
+        </a>
       </div>
 
-      <div id="shopGrid" class="shop-grid"></div>
+      <div class="dz-poi-list" id="brPoiList"></div>
+    </article>
 
-      <p class="disclaimer">
-        DROPZONE ist ein inoffizielles Fan-Projekt und nicht mit Epic Games verbunden.
+    <article class="dz-map-card">
+      <div class="dz-map-title">
+        <div>
+          <span class="dz-map-tag dz-map-tag-reload">RELOAD</span>
+          <h3>Reload Map</h3>
+        </div>
+        <span class="dz-live-dot dz-reload-dot">MAP</span>
+      </div>
+
+      <div class="dz-map-image-wrap">
+        <img id="reloadMapImage" alt="Fortnite Reload Karte"
+             loading="lazy" hidden>
+        <div class="dz-map-loading" id="reloadMapStatus">
+          Reload-Karte benötigt eine passende Kartenbild-URL.
+        </div>
+      </div>
+
+      <div class="dz-map-footer">
+        <span>Reload-Modus</span>
+        <a href="https://www.fortnite.com/"
+           target="_blank" rel="noopener noreferrer">
+          Fortnite öffnen ↗
+        </a>
+      </div>
+
+      <p class="dz-map-note">
+        Die Reload-Karte wird separat konfiguriert, weil der verwendete
+        API-Endpunkt nicht automatisch eine eigene Reload-Karte garantiert.
       </p>
-    </section>
-  </main>
+    </article>
+  </div>
+</section>
 
-  <footer>
-    <a href="#home" class="logo"><span>DROP</span>ZONE<span class="dot">.</span></a>
-    <span>Made for the Battle.</span>
-  </footer>
-</body>
-</html>
+<!-- DROPZONE: Additional Fortnite data -->
+<section class="dz-extra-section" id="fortniteData">
+  <div class="dz-section-heading">
+    <div>
+      <span class="dz-eyebrow">MORE FROM THE ISLAND</span>
+      <h2>FORTNITE INTEL</h2>
+      <p>Playlists, aktuelle Cosmetics und weitere Spieldaten.</p>
+    </div>
+  </div>
+
+  <div class="dz-intel-grid">
+    <article class="dz-intel-card">
+      <span class="dz-map-tag">GAME MODES</span>
+      <h3>Playlists</h3>
+      <p>Verfügbare Spielmodi aus der Fortnite-API.</p>
+      <div id="dzPlaylists" class="dz-data-list">
+        Daten werden geladen ...
+      </div>
+    </article>
+
+    <article class="dz-intel-card">
+      <span class="dz-map-tag">COSMETICS</span>
+      <h3>Neue Cosmetics</h3>
+      <p>Zuletzt hinzugefügte kosmetische Items.</p>
+      <div id="dzNewCosmetics" class="dz-data-list">
+        Daten werden geladen ...
+      </div>
+    </article>
+  </div>
+</section>
