@@ -1,190 +1,299 @@
+"use strict";
 
-const translations = {
-  de: {
-    navHome: "Startseite",
-    navMap: "Battle Royale Map",
-    navShop: "Item-Shop",
-    languageLabel: "Sprache",
-    heroEyebrow: "DEIN FORTNITE HUB",
-    heroLine1: "DROP IN.",
-    heroLine2: "GEAR UP.",
-    heroText: "Dein Hub für den Fortnite-Shop und die Battle-Royale-Karte.",
-    heroShop: "Shop ansehen",
-    heroMap: "Karte öffnen ↗",
-    shopEyebrow: "TÄGLICH NEU",
-    shopTitle: "FORTNITE ITEM-SHOP.",
-    refresh: "Aktualisieren",
-    shopLoading: "Shop wird geladen …",
-    shopNote: "Die Verfügbarkeit hängt von der API ab. Dropzone ist ein Fan-Projekt und nicht mit Epic Games verbunden.",
-    mapEyebrow: "PLAN YOUR DROP",
-    mapTitle: "DIE INSEL WARTET.",
-    mapText: "Öffne die separate Karte und wähle aus, welche Karteninformationen du sehen möchtest.",
-    mapButton: "Battle Royale Map öffnen ↗",
-    footerNote: "Fan-Projekt — nicht mit Epic Games verbunden.",
-    shopError: "Der Shop konnte nicht geladen werden. Bitte später erneut versuchen.",
-    noItems: "Die API hat aktuell keine Shop-Artikel zurückgegeben."
-  },
-  en: {
-    navHome: "Home",
-    navMap: "Battle Royale Map",
-    navShop: "Item Shop",
-    languageLabel: "Language",
-    heroEyebrow: "YOUR FORTNITE HUB",
-    heroLine1: "DROP IN.",
-    heroLine2: "GEAR UP.",
-    heroText: "Your hub for the Fortnite shop and Battle Royale map.",
-    heroShop: "View shop",
-    heroMap: "Open map ↗",
-    shopEyebrow: "DAILY UPDATE",
-    shopTitle: "FORTNITE ITEM SHOP.",
-    refresh: "Refresh",
-    shopLoading: "Loading shop …",
-    shopNote: "Availability depends on the API. Dropzone is a fan project and is not affiliated with Epic Games.",
-    mapEyebrow: "PLAN YOUR DROP",
-    mapTitle: "THE ISLAND AWAITS.",
-    mapText: "Open the separate map and choose which map information to display.",
-    mapButton: "Open Battle Royale Map ↗",
-    footerNote: "Fan project — not affiliated with Epic Games.",
-    shopError: "Could not load the shop. Please try again later.",
-    noItems: "The API did not return any shop items right now."
-  }
-};
-
-// Fortnite API key
+const API_URL = "https://fortnite-api.com/v2/shop?language=de";
 const API_KEY = "613bf376-b744-4781-917f-707018a83c9a";
-const SHOP_URL = "https://fortnite-api.com/v2/shop";
 
-function getLanguage() {
-  return localStorage.getItem("dropzone-language") || "de";
+const shopGrid = document.getElementById("shop-grid");
+const searchInput = document.getElementById("search-input");
+const shopStatus = document.getElementById("shop-status");
+const shopCount = document.getElementById("shop-count");
+const emptyState = document.getElementById("empty-state");
+const refreshButton = document.getElementById("refresh-button");
+
+let allItems = [];
+let currentRequest = 0;
+
+function setStatus(message, online = false) {
+  if (!shopStatus) return;
+
+  const dot = document.createElement("span");
+  dot.className = "status-dot";
+
+  if (!online) {
+    dot.style.background = "#a100ff";
+  }
+
+  shopStatus.replaceChildren(
+    dot,
+    document.createTextNode(message)
+  );
 }
 
-function applyLanguage(language) {
-  const safeLanguage = translations[language] ? language : "de";
-  localStorage.setItem("dropzone-language", safeLanguage);
-  document.documentElement.lang = safeLanguage;
+function getShopEntries(data) {
+  const entries = data?.data?.entries;
+  return Array.isArray(entries) ? entries : [];
+}
 
-  document.querySelectorAll("[data-i18n]").forEach((element) => {
-    const key = element.dataset.i18n;
-    if (translations[safeLanguage][key]) {
-      element.textContent = translations[safeLanguage][key];
+function getItemName(item) {
+  return (
+    item?.bundle?.name ||
+    item?.brItems?.[0]?.name ||
+    item?.tracks?.[0]?.title ||
+    item?.instruments?.[0]?.name ||
+    item?.cars?.[0]?.name ||
+    item?.name ||
+    item?.title ||
+    "Unbekanntes Item"
+  );
+}
+
+function getItemImage(item) {
+  const candidates = [
+    item?.newDisplayAsset?.renderImages?.[0]?.image,
+    item?.newDisplayAsset?.materialInstances?.[0]?.images?.OfferImage,
+    item?.brItems?.[0]?.images?.featured,
+    item?.brItems?.[0]?.images?.icon,
+    item?.tracks?.[0]?.albumArt,
+    item?.instruments?.[0]?.images?.large,
+    item?.cars?.[0]?.images?.icon,
+    item?.bundle?.image,
+    item?.images?.icon
+  ];
+
+  return candidates.find(value =>
+    typeof value === "string" &&
+    /^https:\/\//i.test(value)
+  ) || "";
+}
+
+function getItemPrice(item) {
+  const candidates = [
+    item?.finalPrice,
+    item?.regularPrice,
+    item?.brItems?.[0]?.price,
+    item?.tracks?.[0]?.price
+  ];
+
+  for (const value of candidates) {
+    if (value !== null && value !== undefined && Number.isFinite(Number(value))) {
+      return Number(value);
     }
+  }
+
+  return 0;
+}
+
+function getItemType(item) {
+  return (
+    item?.layout?.name ||
+    item?.brItems?.[0]?.type?.displayValue ||
+    item?.tracks?.[0]?.type ||
+    item?.instruments?.[0]?.type?.displayValue ||
+    item?.cars?.[0]?.type?.displayValue ||
+    item?.bundle?.name ||
+    "Fortnite Item"
+  );
+}
+
+function createElement(tag, className, text) {
+  const element = document.createElement(tag);
+
+  if (className) {
+    element.className = className;
+  }
+
+  if (text !== undefined) {
+    element.textContent = text;
+  }
+
+  return element;
+}
+
+function createItemCard(item) {
+  const card = createElement("article", "item-card");
+  const imageUrl = getItemImage(item);
+
+  if (imageUrl) {
+    const image = createElement("img");
+    image.src = imageUrl;
+    image.alt = getItemName(item);
+    image.loading = "lazy";
+    image.decoding = "async";
+
+    image.addEventListener("error", () => {
+      image.remove();
+    }, { once: true });
+
+    card.appendChild(image);
+  }
+
+  const content = createElement("div", "item-card-content");
+  const rarity = createElement("div", "item-rarity", getItemType(item));
+  const name = createElement("h3", "", getItemName(item));
+  const description = createElement("p", "", "FORTNITE ITEM");
+
+  const price = createElement("div", "item-price");
+  const priceLabel = createElement("span", "", "V-BUCKS");
+  const priceValue = createElement("strong");
+
+  const amount = getItemPrice(item);
+
+  priceValue.textContent = amount > 0
+    ? amount.toLocaleString("de-DE")
+    : "—";
+
+  price.append(priceLabel, priceValue);
+  content.append(rarity, name, description, price);
+  card.appendChild(content);
+
+  return card;
+}
+
+function renderItems(items) {
+  if (!shopGrid) return;
+
+  shopGrid.replaceChildren();
+
+  if (shopCount) {
+    const count = createElement("span", "", String(items.length));
+
+    shopCount.replaceChildren(
+      document.createTextNode("ITEMS "),
+      count
+    );
+  }
+
+  if (emptyState) {
+    emptyState.hidden = items.length > 0;
+  }
+
+  if (items.length === 0) {
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  for (const item of items) {
+    fragment.appendChild(createItemCard(item));
+  }
+
+  shopGrid.appendChild(fragment);
+}
+
+function filterItems() {
+  const query = (searchInput?.value || "")
+    .trim()
+    .toLocaleLowerCase("de");
+
+  const filtered = allItems.filter(item => {
+    const name = getItemName(item).toLocaleLowerCase("de");
+    const type = getItemType(item).toLocaleLowerCase("de");
+
+    return name.includes(query) || type.includes(query);
   });
 
-  const select = document.getElementById("languageSelect");
-  if (select) select.value = safeLanguage;
+  renderItems(filtered);
+}
 
-  const status = document.getElementById("shopStatus");
-  if (status && status.dataset.state === "loading") {
-    status.textContent = translations[safeLanguage].shopLoading;
+function showLoading() {
+  if (!shopGrid) return;
+
+  const panel = createElement("div", "loading-panel");
+  const ring = createElement("div", "loading-ring");
+  const title = createElement("p", "", "LOOT WIRD GELADEN");
+  const subtitle = createElement("span", "", "BITTE WARTEN...");
+
+  panel.append(ring, title, subtitle);
+  shopGrid.replaceChildren(panel);
+
+  if (emptyState) {
+    emptyState.hidden = true;
+  }
+}
+
+function showError(message) {
+  if (!shopGrid) return;
+
+  const panel = createElement("div", "loading-panel");
+  const title = createElement("p", "", "VERBINDUNG FEHLGESCHLAGEN");
+  const description = createElement("span", "", message);
+
+  panel.append(title, description);
+  shopGrid.replaceChildren(panel);
+
+  if (emptyState) {
+    emptyState.hidden = true;
+  }
+
+  if (shopCount) {
+    shopCount.textContent = "ITEMS —";
   }
 }
 
 async function loadShop() {
-  const status = document.getElementById("shopStatus");
-  const grid = document.getElementById("shopGrid");
+  if (!shopGrid) return;
 
-  if (!status || !grid) return;
+  const requestId = ++currentRequest;
 
-  status.dataset.state = "loading";
-  status.textContent = translations[getLanguage()].shopLoading;
-  grid.replaceChildren();
+  if (refreshButton) {
+    refreshButton.disabled = true;
+    refreshButton.style.opacity = "0.65";
+  }
+
+  showLoading();
+  setStatus("VERBINDE MIT DER ZONE...");
 
   try {
-    const response = await fetch(
-      `${SHOP_URL}?language=${encodeURIComponent(getLanguage())}`,
-      {
-        headers: {
-          Accept: "application/json",
-          Authorization: `ApiKey ${API_KEY}`
-        }
-      }
-    );
-
-    if (!response.ok) {
-      const details = await response.text();
-      throw new Error(`Shop API returned ${response.status}: ${details}`);
-    }
-
-    const json = await response.json();
-    const entries = json?.data?.entries || [];
-
-    const items = entries.flatMap((entry) =>
-      (entry.items || []).map((item) => ({ item, entry }))
-    );
-
-    if (!items.length) {
-      status.textContent = translations[getLanguage()].noItems;
-      status.dataset.state = "done";
-      return;
-    }
-
-    items.slice(0, 36).forEach(({ item, entry }) => {
-      const card = document.createElement("article");
-      card.className = "shop-card";
-
-      const image = document.createElement("img");
-      image.loading = "lazy";
-      image.alt = item.name || "Fortnite item";
-      image.src =
-        item.images?.icon ||
-        item.images?.featured ||
-        item.images?.smallIcon ||
-        "";
-
-      image.onerror = () => {
-        image.style.visibility = "hidden";
-      };
-
-      const body = document.createElement("div");
-      body.className = "shop-card-body";
-
-      const title = document.createElement("h3");
-      title.textContent = item.name || "Fortnite Item";
-
-      const price = document.createElement("p");
-      const amount = entry.finalPrice ?? entry.regularPrice;
-
-      price.textContent =
-        amount != null
-          ? `${amount} V-Bucks`
-          : item.type?.displayValue || "Fortnite";
-
-      body.append(title, price);
-      card.append(image, body);
-      grid.append(card);
+    const response = await fetch(API_URL, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "x-api-key": API_KEY
+      },
+      cache: "no-store"
     });
 
-    status.textContent = "";
-    status.dataset.state = "done";
+    if (!response.ok) {
+      throw new Error(`API-Fehler: HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+    const entries = getShopEntries(result);
+
+    if (requestId !== currentRequest) return;
+
+    if (!entries.length) {
+      throw new Error("Die API hat keine Shop-Items zurückgegeben.");
+    }
+
+    allItems = entries;
+    filterItems();
+
+    setStatus("ZONE ONLINE // SHOP ERFOLGREICH GELADEN", true);
   } catch (error) {
-    console.error("Shop loading failed:", error);
-    status.textContent = translations[getLanguage()].shopError;
-    status.dataset.state = "error";
+    if (requestId !== currentRequest) return;
+
+    console.error("Dropzone Shop Fehler:", error);
+
+    showError(
+      "Der Shop konnte nicht geladen werden. Prüfe API-Key und Verbindung."
+    );
+
+    setStatus("ZONE OFFLINE // API-FEHLER");
+  } finally {
+    if (requestId === currentRequest && refreshButton) {
+      refreshButton.disabled = false;
+      refreshButton.style.opacity = "1";
+    }
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const languageSelect = document.getElementById("languageSelect");
+if (searchInput) {
+  searchInput.addEventListener("input", filterItems);
+}
 
-  if (languageSelect) {
-    languageSelect.value = getLanguage();
+if (refreshButton) {
+  refreshButton.addEventListener("click", loadShop);
+}
 
-    languageSelect.addEventListener("change", () => {
-      applyLanguage(languageSelect.value);
-      loadShop();
-    });
-  }
-
-  const refresh = document.getElementById("refreshShop");
-  if (refresh) {
-    refresh.addEventListener("click", loadShop);
-  }
-
-  const year = document.getElementById("year");
-  if (year) {
-    year.textContent = new Date().getFullYear();
-  }
-
-  applyLanguage(getLanguage());
-  loadShop();
-});
+loadShop();
