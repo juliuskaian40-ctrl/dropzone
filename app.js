@@ -1,320 +1,260 @@
 "use strict";
 
-const API = "https://fortnite-api.com";
-const RELOAD_MAP_IMAGE_URL = ""; // Hier später eine echte Reload-Kartenbild-URL einsetzen.
+const API_URL = "https://fortnite-api.com/v2/shop?language=de";
+const API_KEY = "613bf376-b744-4781-917f-707018a83c9a";
 
-const $ = (id) => document.getElementById(id);
+const grid = document.getElementById("shopGrid");
+const statusBox = document.getElementById("shopStatus");
+const searchInput = document.getElementById("shopSearch");
+const refreshButton = document.getElementById("refreshShop");
+const countLabel = document.getElementById("itemCount");
 
-async function apiGet(endpoint) {
-  const response = await fetch(`${API}${endpoint}`);
+let items = [];
 
-  if (!response.ok) {
-    throw new Error(`API returned ${response.status}`);
-  }
-
-  const json = await response.json();
-  if (json.status && json.status !== 200) {
-    throw new Error(json.error || "Fortnite API error");
-  }
-  return json.data;
+function textValue(...values) {
+  return values.find(value =>
+    typeof value === "string" && value.trim()
+  ) || "";
 }
 
-function showMessage(id, message) {
-  const el = $(id);
-  if (el) {
-    el.hidden = false;
-    el.textContent = message;
-  }
+function getImage(item, entry) {
+  const candidates = [
+    item?.images?.featured,
+    item?.images?.icon,
+    item?.images?.other,
+    item?.images?.smallIcon,
+    item?.displayAssets?.[0]?.url,
+    item?.displayAssets?.[0]?.image,
+    item?.newDisplayAsset?.renderImages?.[0]?.image,
+    item?.newDisplayAsset?.renderImages?.[0]?.url,
+    entry?.bundle?.image,
+    entry?.displayAssets?.[0]?.url,
+    entry?.displayAssets?.[0]?.image,
+    entry?.newDisplayAsset?.renderImages?.[0]?.image
+  ];
+
+  return candidates.find(value =>
+    typeof value === "string" && /^https?:\/\//i.test(value)
+  ) || "";
 }
 
-function imageUrl(value) {
-  if (typeof value !== "string") return "";
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" ? url.href : "";
-  } catch {
-    return "";
-  }
-}
+function getEntries(data) {
+  if (Array.isArray(data?.entries)) return data.entries;
 
-function renderImage(img, placeholder, url) {
-  if (!img || !placeholder) return;
+  const sections = [
+    data?.featured?.entries,
+    data?.daily?.entries,
+    data?.specialFeatured?.entries,
+    data?.specialDaily?.entries,
+    data?.collaborations?.entries
+  ];
 
-  const safe = imageUrl(url);
-  if (!safe) {
-    img.hidden = true;
-    placeholder.hidden = false;
-    placeholder.textContent = "Kein Kartenbild verfügbar.";
-    return;
-  }
-
-  img.onload = () => {
-    img.hidden = false;
-    placeholder.hidden = true;
-  };
-
-  img.onerror = () => {
-    img.hidden = true;
-    placeholder.hidden = false;
-    placeholder.textContent = "Bild konnte nicht geladen werden.";
-  };
-
-  placeholder.hidden = false;
-  placeholder.textContent = "Bild wird geladen...";
-  img.src = safe;
-}
-
-async function loadMap() {
-  try {
-    const data = await apiGet("/v1/map?language=en");
-    const image = data?.images?.blank;
-
-    renderImage($("brMap"), $("brMapStatus"), image);
-
-    if (image && $("openBrMap")) {
-      $("openBrMap").href = image;
-    }
-
-    if ($("brMapVersion")) {
-      $("brMapVersion").textContent = data?.season
-        ? `SEASON ${data.season}`
-        : "CURRENT MAP";
-    }
-
-    const list = $("poiList");
-    if (list) {
-      list.replaceChildren();
-
-      (Array.isArray(data?.pois) ? data.pois : [])
-        .slice(0, 30)
-        .forEach((poi) => {
-          const name = poi?.name || poi?.location;
-          if (!name) return;
-
-          const chip = document.createElement("span");
-          chip.className = "poi-chip";
-          chip.textContent = name;
-          list.append(chip);
-        });
-    }
-  } catch (error) {
-    console.error("Map error:", error);
-    showMessage("brMapStatus", "Map konnte nicht geladen werden. Bitte später erneut versuchen.");
-  }
-}
-
-function loadReloadMap() {
-  renderImage(
-    $("reloadMap"),
-    $("reloadStatus"),
-    RELOAD_MAP_IMAGE_URL
+  return sections.flatMap(section =>
+    Array.isArray(section) ? section : []
   );
 }
 
-async function loadPlaylists() {
-  const grid = $("modeGrid");
-  if (!grid) return;
+function parseItems(json) {
+  const result = [];
 
-  try {
-    const data = await apiGet("/v1/playlists?language=en");
-    grid.replaceChildren();
+  for (const entry of getEntries(json?.data)) {
+    const listedItems = Array.isArray(entry?.br) && entry.br.length
+      ? entry.br
+      : Array.isArray(entry?.items) && entry.items.length
+        ? entry.items
+        : [entry];
 
-    (Array.isArray(data) ? data : [])
-      .filter((item) => item && (item.name || item.id))
-      .slice(0, 30)
-      .forEach((item) => {
-        const card = document.createElement("article");
-        card.className = "mode-card";
+    for (const item of listedItems) {
+      const name = textValue(
+        item?.name,
+        item?.displayName,
+        entry?.bundle?.name,
+        entry?.name,
+        entry?.devName
+      );
 
-        const title = document.createElement("h3");
-        title.textContent = item.name || item.id;
+      const image = getImage(item, entry);
+      if (!name || !image) continue;
 
-        const description = document.createElement("p");
-        description.textContent = item.description || item.id || "Fortnite playlist";
+      const rarity = textValue(
+        item?.rarity?.displayValue,
+        item?.series?.name,
+        item?.rarity?.value,
+        item?.type?.displayValue
+      ) || "Fortnite";
 
-        card.append(title, description);
-        grid.append(card);
+      const type = textValue(
+        item?.type?.displayValue,
+        item?.type?.value,
+        entry?.section?.name,
+        entry?.layout?.name
+      ) || "Item Shop";
+
+      let price = null;
+
+      if (Number.isFinite(entry?.finalPrice)) {
+        price = entry.finalPrice;
+      } else if (Number.isFinite(entry?.price?.finalPrice)) {
+        price = entry.price.finalPrice;
+      } else if (Number.isFinite(entry?.regularPrice)) {
+        price = entry.regularPrice;
+      }
+
+      result.push({
+        id: item?.id || `${name}-${image}`,
+        name,
+        image,
+        rarity,
+        type,
+        price
       });
-
-    if (!grid.children.length) {
-      grid.textContent = "Keine Playlists zurückgegeben.";
     }
-  } catch (error) {
-    console.error("Playlist error:", error);
-    grid.textContent = "Playlists konnten nicht geladen werden.";
   }
+
+  const seen = new Set();
+
+  return result.filter(item => {
+    const key = `${item.name}|${item.image}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function createElement(tag, className, content) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (content !== undefined) element.textContent = content;
+  return element;
+}
+
+function showStatus(message, loading = false) {
+  statusBox.classList.remove("hidden");
+  statusBox.replaceChildren();
+
+  if (loading) {
+    statusBox.append(createElement("span", "spinner"));
+  }
+
+  statusBox.append(createElement("span", "", message));
+}
+
+function renderItems() {
+  const query = searchInput.value.trim().toLowerCase();
+
+  const filtered = items.filter(item =>
+    item.name.toLowerCase().includes(query) ||
+    item.rarity.toLowerCase().includes(query) ||
+    item.type.toLowerCase().includes(query)
+  );
+
+  grid.replaceChildren();
+  countLabel.textContent = `${filtered.length} ITEMS`;
+
+  if (!filtered.length) {
+    showStatus(items.length
+      ? "Keine passenden Items gefunden."
+      : "Keine Shop-Items mit Bildern gefunden. Bitte API-Antwort prüfen.");
+    return;
+  }
+
+  statusBox.classList.add("hidden");
+  const fragment = document.createDocumentFragment();
+
+  for (const item of filtered) {
+    const card = createElement("article", "shop-card");
+    const imageArea = createElement("div", "shop-card-image");
+    const image = document.createElement("img");
+
+    image.src = item.image;
+    image.alt = item.name;
+    image.loading = "lazy";
+    image.decoding = "async";
+
+    image.addEventListener("error", () => {
+      image.remove();
+      imageArea.append(
+        createElement("span", "image-fallback", "Bild nicht verfügbar")
+      );
+    }, { once: true });
+
+    imageArea.append(
+      image,
+      createElement("span", "shop-rarity", item.rarity)
+    );
+
+    const details = createElement("div", "shop-card-details");
+    details.append(
+      createElement("h3", "", item.name),
+      createElement("p", "item-type", item.type)
+    );
+
+    if (item.price !== null) {
+      const price = createElement("div", "shop-price");
+      price.append(
+        createElement("span", "vbuck-symbol", "V"),
+        document.createTextNode(
+          `${item.price.toLocaleString("de-DE")} V-Bucks`
+        )
+      );
+      details.append(price);
+    }
+
+    card.append(imageArea, details);
+    fragment.append(card);
+  }
+
+  grid.append(fragment);
 }
 
 async function loadShop() {
-  const grid = $("shopGrid");
-  if (!grid) return;
+  refreshButton.disabled = true;
+  showStatus("Item-Shop wird geladen ...", true);
+  countLabel.textContent = "LÄDT ...";
 
   try {
-    const data = await apiGet("/v2/shop?language=en");
-    const entries = data?.entries || data?.shop || [];
-
-    grid.replaceChildren();
-
-    entries.slice(0, 24).forEach((entry) => {
-      const item = entry?.brItems?.[0] || entry?.items?.[0] || entry;
-      const name = item?.name || entry?.devName || "Fortnite item";
-      const price = entry?.finalPrice ?? entry?.regularPrice;
-      const image = item?.images?.featured || item?.images?.icon || item?.images?.smallIcon;
-
-      const card = document.createElement("article");
-      card.className = "item-card";
-
-      if (imageUrl(image)) {
-        const img = document.createElement("img");
-        img.src = imageUrl(image);
-        img.alt = name;
-        img.loading = "lazy";
-        card.append(img);
-      }
-
-      const info = document.createElement("div");
-      info.className = "item-info";
-
-      const title = document.createElement("h3");
-      title.textContent = name;
-
-      const type = document.createElement("p");
-      type.textContent = item?.type?.displayValue || item?.type?.value || "Item Shop";
-
-      const cost = document.createElement("p");
-      cost.className = "price";
-      cost.textContent = price != null ? `${price} V-Bucks` : "Shop item";
-
-      info.append(title, type, cost);
-      card.append(info);
-      grid.append(card);
+    const response = await fetch(API_URL, {
+      headers: {
+        Accept: "application/json",
+        "x-api-key": API_KEY
+      },
+      cache: "no-store"
     });
 
-    if (!grid.children.length) {
-      grid.textContent = "Shop-Daten haben ein anderes Format oder sind gerade nicht verfügbar.";
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
 
-    if ($("shopUpdated")) {
-      $("shopUpdated").textContent = data?.date
-        ? `Updated ${new Date(data.date).toLocaleString()}`
-        : "Shop data loaded";
+    const json = await response.json();
+
+    if (json?.status && json.status !== 200) {
+      throw new Error(json.error || "API-Fehler");
     }
+
+    items = parseItems(json);
+
+    if (!items.length) {
+      countLabel.textContent = "0 ITEMS";
+      showStatus(
+        "Die API lieferte keine verwendbaren Shop-Bilder. Öffne F12 → Console für Details."
+      );
+      console.warn("Shop-Antwort:", json);
+      return;
+    }
+
+    renderItems();
   } catch (error) {
-    console.error("Shop error:", error);
-    grid.textContent = "Item Shop konnte nicht geladen werden.";
-  }
-}
-
-async function loadCosmetics() {
-  const grid = $("cosmeticGrid");
-  if (!grid) return;
-
-  try {
-    const data = await apiGet("/v2/cosmetics/new?language=en");
-    const items = Array.isArray(data) ? data : (data?.items || []);
-
-    grid.replaceChildren();
-
-    items.slice(0, 16).forEach((item) => {
-      const name = item?.name || item?.id || "Cosmetic";
-      const image = item?.images?.icon || item?.images?.smallIcon;
-
-      const card = document.createElement("article");
-      card.className = "item-card";
-
-      if (imageUrl(image)) {
-        const img = document.createElement("img");
-        img.src = imageUrl(image);
-        img.alt = name;
-        img.loading = "lazy";
-        card.append(img);
-      }
-
-      const info = document.createElement("div");
-      info.className = "item-info";
-
-      const title = document.createElement("h3");
-      title.textContent = name;
-
-      const rarity = document.createElement("p");
-      rarity.textContent = item?.rarity?.displayValue || "New cosmetic";
-
-      info.append(title, rarity);
-      card.append(info);
-      grid.append(card);
-    });
-
-    if (!grid.children.length) {
-      grid.textContent = "Keine neuen Cosmetics verfügbar.";
-    }
-  } catch (error) {
-    console.error("Cosmetics error:", error);
-    grid.textContent = "Cosmetics konnten nicht geladen werden.";
-  }
-}
-
-async function loadNews() {
-  const grid = $("newsGrid");
-  if (!grid) return;
-
-  try {
-    const data = await apiGet("/v2/news");
-    const news = data?.br?.motds || [];
-
-    grid.replaceChildren();
-
-    news.slice(0, 10).forEach((item) => {
-      const card = document.createElement("article");
-      card.className = "news-card";
-
-      const image = imageUrl(item?.image);
-      if (image) {
-        const img = document.createElement("img");
-        img.src = image;
-        img.alt = item?.title || "Fortnite news";
-        img.loading = "lazy";
-        card.append(img);
-      }
-
-      const title = document.createElement("h3");
-      title.textContent = item?.title || "Fortnite News";
-
-      const body = document.createElement("p");
-      body.textContent = item?.body || item?.tabTitle || "Latest Fortnite update";
-
-      card.append(title, body);
-      grid.append(card);
-    });
-
-    if (!grid.children.length) {
-      grid.textContent = "Keine News zurückgegeben.";
-    }
-  } catch (error) {
-    console.error("News error:", error);
-    grid.textContent = "News konnten nicht geladen werden.";
-  }
-}
-
-async function refreshAll() {
-  const button = $("refreshBtn");
-  if (button) button.disabled = true;
-
-  try {
-    await Promise.allSettled([
-      loadMap(),
-      loadPlaylists(),
-      loadShop(),
-      loadCosmetics(),
-      loadNews()
-    ]);
+    console.error("DROPZONE Shop-Fehler:", error);
+    countLabel.textContent = "FEHLER";
+    showStatus(
+      "Shop konnte nicht geladen werden. Mögliche Ursachen: API nicht erreichbar, Zugriff verweigert oder Anfrage blockiert."
+    );
   } finally {
-    if (button) button.disabled = false;
+    refreshButton.disabled = false;
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadReloadMap();
-  $("refreshBtn")?.addEventListener("click", refreshAll);
-  refreshAll();
-});
+searchInput.addEventListener("input", renderItems);
+refreshButton.addEventListener("click", loadShop);
 
+loadShop();
