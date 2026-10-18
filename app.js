@@ -1,4 +1,3 @@
-
 "use strict";
 
 const API = "https://fortnite-api.com";
