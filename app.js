@@ -1,257 +1,325 @@
 
-"use strict";
+/* =========================================
+   DROPZONE - MAPS & FORTNITE INTEL
+   Append to the END of app.js
+   ========================================= */
 
-const API_URL = "https://fortnite-api.com/v2/shop?language=de";
+(() => {
+  "use strict";
 
-const grid = document.getElementById("shopGrid");
-const statusBox = document.getElementById("shopStatus");
-const searchInput = document.getElementById("shopSearch");
-const refreshButton = document.getElementById("refreshShop");
-const countLabel = document.getElementById("itemCount");
+  const DZ_API = "https://fortnite-api.com";
 
-let items = [];
+  /*
+   * Optional:
+   * Add a direct image URL for a Reload map you are
+   * permitted to use. Leave empty until you have one.
+   *
+   * Do not put a private API key in this public file.
+   */
+  const RELOAD_MAP_IMAGE_URL = "";
 
-function textValue(...values) {
-  return values.find(value =>
-    typeof value === "string" && value.trim()
-  ) || "";
-}
+  const $ = (id) => document.getElementById(id);
 
-function getImage(item, entry) {
-  const candidates = [
-    item?.images?.featured,
-    item?.images?.icon,
-    item?.images?.other,
-    item?.images?.smallIcon,
-    item?.displayAssets?.[0]?.url,
-    item?.displayAssets?.[0]?.image,
-    item?.newDisplayAsset?.renderImages?.[0]?.image,
-    item?.newDisplayAsset?.renderImages?.[0]?.url,
-    entry?.bundle?.image,
-    entry?.displayAssets?.[0]?.url,
-    entry?.displayAssets?.[0]?.image,
-    entry?.newDisplayAsset?.renderImages?.[0]?.image
-  ];
-
-  return candidates.find(value =>
-    typeof value === "string" && /^https?:\/\//i.test(value)
-  ) || "";
-}
-
-function getEntries(data) {
-  if (Array.isArray(data?.entries)) return data.entries;
-
-  const sections = [
-    data?.featured?.entries,
-    data?.daily?.entries,
-    data?.specialFeatured?.entries,
-    data?.specialDaily?.entries,
-    data?.collaborations?.entries
-  ];
-
-  return sections.flatMap(section =>
-    Array.isArray(section) ? section : []
-  );
-}
-
-function parseItems(json) {
-  const result = [];
-
-  for (const entry of getEntries(json?.data)) {
-    const listedItems = Array.isArray(entry?.br) && entry.br.length
-      ? entry.br
-      : Array.isArray(entry?.items) && entry.items.length
-        ? entry.items
-        : [entry];
-
-    for (const item of listedItems) {
-      const name = textValue(
-        item?.name,
-        item?.displayName,
-        entry?.bundle?.name,
-        entry?.name,
-        entry?.devName
-      );
-
-      const image = getImage(item, entry);
-      if (!name || !image) continue;
-
-      const rarity = textValue(
-        item?.rarity?.displayValue,
-        item?.series?.name,
-        item?.rarity?.value,
-        item?.type?.displayValue
-      ) || "Fortnite";
-
-      const type = textValue(
-        item?.type?.displayValue,
-        item?.type?.value,
-        entry?.section?.name,
-        entry?.layout?.name
-      ) || "Item Shop";
-
-      let price = null;
-
-      if (Number.isFinite(entry?.finalPrice)) {
-        price = entry.finalPrice;
-      } else if (Number.isFinite(entry?.price?.finalPrice)) {
-        price = entry.price.finalPrice;
-      } else if (Number.isFinite(entry?.regularPrice)) {
-        price = entry.regularPrice;
-      }
-
-      result.push({
-        id: item?.id || `${name}-${image}`,
-        name,
-        image,
-        rarity,
-        type,
-        price
-      });
-    }
-  }
-
-  const seen = new Set();
-
-  return result.filter(item => {
-    const key = `${item.name}|${item.image}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function createElement(tag, className, content) {
-  const element = document.createElement(tag);
-  if (className) element.className = className;
-  if (content !== undefined) element.textContent = content;
-  return element;
-}
-
-function showStatus(message, loading = false) {
-  statusBox.classList.remove("hidden");
-  statusBox.replaceChildren();
-
-  if (loading) {
-    statusBox.append(createElement("span", "spinner"));
-  }
-
-  statusBox.append(createElement("span", "", message));
-}
-
-function renderItems() {
-  const query = searchInput.value.trim().toLowerCase();
-
-  const filtered = items.filter(item =>
-    item.name.toLowerCase().includes(query) ||
-    item.rarity.toLowerCase().includes(query) ||
-    item.type.toLowerCase().includes(query)
-  );
-
-  grid.replaceChildren();
-  countLabel.textContent = `${filtered.length} ITEMS`;
-
-  if (!filtered.length) {
-    showStatus(items.length
-      ? "Keine passenden Items gefunden."
-      : "Keine Shop-Items mit Bildern gefunden. Bitte API-Antwort prüfen.");
-    return;
-  }
-
-  statusBox.classList.add("hidden");
-  const fragment = document.createDocumentFragment();
-
-  for (const item of filtered) {
-    const card = createElement("article", "shop-card");
-    const imageArea = createElement("div", "shop-card-image");
-    const image = document.createElement("img");
-
-    image.src = item.image;
-    image.alt = item.name;
-    image.loading = "lazy";
-    image.decoding = "async";
-
-    image.addEventListener("error", () => {
-      image.remove();
-      imageArea.append(
-        createElement("span", "image-fallback", "Bild nicht verfügbar")
-      );
-    }, { once: true });
-
-    imageArea.append(
-      image,
-      createElement("span", "shop-rarity", item.rarity)
-    );
-
-    const details = createElement("div", "shop-card-details");
-    details.append(
-      createElement("h3", "", item.name),
-      createElement("p", "item-type", item.type)
-    );
-
-    if (item.price !== null) {
-      const price = createElement("div", "shop-price");
-      price.append(
-        createElement("span", "vbuck-symbol", "V"),
-        document.createTextNode(
-          `${item.price.toLocaleString("de-DE")} V-Bucks`
-        )
-      );
-      details.append(price);
-    }
-
-    card.append(imageArea, details);
-    fragment.append(card);
-  }
-
-  grid.append(fragment);
-}
-
-async function loadShop() {
-  refreshButton.disabled = true;
-  showStatus("Item-Shop wird geladen ...", true);
-  countLabel.textContent = "LÄDT ...";
-
-  try {
-    const response = await fetch(API_URL, {
+  async function dzFetch(path) {
+    const response = await fetch(`${DZ_API}${path}`, {
       headers: { Accept: "application/json" },
       cache: "no-store"
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      throw new Error(`API request failed: HTTP ${response.status}`);
     }
 
     const json = await response.json();
 
     if (json?.status && json.status !== 200) {
-      throw new Error(json.error || "API-Fehler");
+      throw new Error(json.error || "Fortnite API error");
     }
 
-    items = parseItems(json);
+    return json?.data ?? json;
+  }
 
-    if (!items.length) {
-      countLabel.textContent = "0 ITEMS";
-      showStatus(
-        "Die API lieferte keine verwendbaren Shop-Bilder. Öffne F12 → Console für Details."
-      );
-      console.warn("Shop-Antwort:", json);
+  function dzSetStatus(id, message, isError = false) {
+    const element = $(id);
+    if (!element) return;
+
+    element.textContent = message;
+    element.classList.toggle("dz-data-error", isError);
+  }
+
+  function dzSafeImageUrl(value) {
+    if (typeof value !== "string") return "";
+
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" ? url.href : "";
+    } catch {
+      return "";
+    }
+  }
+
+  function dzShowMapImage(imageId, statusId, url, message) {
+    const image = $(imageId);
+    const status = $(statusId);
+
+    if (!image || !status) return;
+
+    const safeUrl = dzSafeImageUrl(url);
+
+    if (!safeUrl) {
+      image.hidden = true;
+      image.removeAttribute("src");
+      dzSetStatus(statusId, message);
       return;
     }
 
-    renderItems();
-  } catch (error) {
-    console.error("DROPZONE Shop-Fehler:", error);
-    countLabel.textContent = "FEHLER";
-    showStatus(
-      "Shop konnte nicht geladen werden. Mögliche Ursachen: API nicht erreichbar, Zugriff verweigert oder Anfrage blockiert."
-    );
-  } finally {
-    refreshButton.disabled = false;
+    image.hidden = true;
+    image.onload = () => {
+      image.hidden = false;
+      status.hidden = true;
+    };
+
+    image.onerror = () => {
+      image.hidden = true;
+      image.removeAttribute("src");
+      status.hidden = false;
+      dzSetStatus(statusId, "Das Kartenbild konnte nicht geladen werden.", true);
+    };
+
+    status.hidden = false;
+    dzSetStatus(statusId, "Kartenbild wird geladen ...");
+    image.src = safeUrl;
   }
-}
 
-searchInput.addEventListener("input", renderItems);
-refreshButton.addEventListener("click", loadShop);
+  async function dzLoadBattleRoyaleMap() {
+    try {
+      const map = await dzFetch("/v1/map?language=de");
 
-loadShop();
+      /*
+       * The API's map response may contain a blank map image
+       * and POI-specific images. Prefer the blank map for the
+       * full map view, then try the other documented image fields.
+       */
+      const images = map?.images ?? {};
+      const mapImage =
+        images.blank ||
+        images.pois ||
+        images.spoiler ||
+        images;
+
+      const imageUrl =
+        typeof mapImage === "string"
+          ? mapImage
+          : "";
+
+      if (!imageUrl) {
+        console.warn("DROPZONE: Map response:", map);
+
+        dzSetStatus(
+          "brMapStatus",
+          "Die API hat kein verwendbares Kartenbild geliefert. Bitte Konsole prüfen.",
+          true
+        );
+      } else {
+        dzShowMapImage(
+          "brMapImage",
+          "brMapStatus",
+          imageUrl,
+          "Kein Kartenbild verfügbar."
+        );
+
+        const openLink = $("brMapOpen");
+        if (openLink) openLink.href = imageUrl;
+      }
+
+      const pois = Array.isArray(map?.pois) ? map.pois : [];
+      const list = $("brPoiList");
+
+      if (list) {
+        list.replaceChildren();
+
+        pois.slice(0, 24).forEach((poi) => {
+          const name =
+            poi?.name ||
+            poi?.location ||
+            poi?.id;
+
+          if (!name || typeof name !== "string") return;
+
+          const chip = document.createElement("span");
+          chip.className = "dz-poi-chip";
+          chip.textContent = name;
+          list.append(chip);
+        });
+      }
+
+      const info = $("brMapInfo");
+      if (info) {
+        info.textContent = pois.length
+          ? `${pois.length} POIs in der API-Antwort`
+          : "Aktuelle Karte";
+      }
+    } catch (error) {
+      console.error("DROPZONE Battle Royale map:", error);
+
+      dzSetStatus(
+        "brMapStatus",
+        "Battle-Royale-Karte konnte nicht geladen werden. API-Verbindung prüfen.",
+        true
+      );
+    }
+  }
+
+  function dzLoadReloadMap() {
+    if (RELOAD_MAP_IMAGE_URL) {
+      dzShowMapImage(
+        "reloadMapImage",
+        "reloadMapStatus",
+        RELOAD_MAP_IMAGE_URL,
+        "Reload-Kartenbild nicht verfügbar."
+      );
+      return;
+    }
+
+    dzShowMapImage(
+      "reloadMapImage",
+      "reloadMapStatus",
+      "",
+      "Noch keine Reload-Kartenbild-URL hinterlegt. Trage oben eine gültige Bild-URL ein."
+    );
+  }
+
+  async function dzLoadPlaylists() {
+    const list = $("dzPlaylists");
+    if (!list) return;
+
+    list.textContent = "Playlists werden geladen ...";
+
+    try {
+      const data = await dzFetch("/v1/playlists?language=de");
+      const playlists = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.playlists)
+          ? data.playlists
+          : [];
+
+      list.replaceChildren();
+
+      const relevant = playlists
+        .filter((item) => item && (item.name || item.id))
+        .slice(0, 12);
+
+      if (!relevant.length) {
+        list.textContent = "Keine Playlists in der Antwort gefunden.";
+        return;
+      }
+
+      relevant.forEach((playlist, index) => {
+        const row = document.createElement("div");
+        row.className = "dz-data-row";
+
+        const number = document.createElement("span");
+        number.className = "dz-data-index";
+        number.textContent = String(index + 1).padStart(2, "0");
+
+        const name = document.createElement("span");
+        name.textContent = playlist.name || playlist.id;
+
+        row.append(number, name);
+        list.append(row);
+      });
+    } catch (error) {
+      console.error("DROPZONE playlists:", error);
+      list.replaceChildren();
+
+      const message = document.createElement("p");
+      message.className = "dz-data-error";
+      message.textContent = "Playlists konnten nicht geladen werden.";
+      list.append(message);
+    }
+  }
+
+  async function dzLoadNewCosmetics() {
+    const list = $("dzNewCosmetics");
+    if (!list) return;
+
+    list.textContent = "Cosmetics werden geladen ...";
+
+    try {
+      const data = await dzFetch("/v2/cosmetics/new?language=de");
+
+      const cosmetics = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.items)
+          ? data.items
+          : [];
+
+      list.replaceChildren();
+
+      const relevant = cosmetics
+        .filter((item) => item && (item.name || item.id))
+        .slice(0, 10);
+
+      if (!relevant.length) {
+        list.textContent = "Keine neuen Cosmetics gefunden.";
+        return;
+      }
+
+      relevant.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "dz-data-row";
+
+        const number = document.createElement("span");
+        number.className = "dz-data-index";
+        number.textContent = String(index + 1).padStart(2, "0");
+
+        const name = document.createElement("span");
+        name.textContent = item.name || item.id;
+
+        row.append(number, name);
+        list.append(row);
+      });
+    } catch (error) {
+      console.error("DROPZONE new cosmetics:", error);
+      list.replaceChildren();
+
+      const message = document.createElement("p");
+      message.className = "dz-data-error";
+      message.textContent = "Neue Cosmetics konnten nicht geladen werden.";
+      list.append(message);
+    }
+  }
+
+  async function dzRefreshMaps() {
+    const button = $("refreshMaps");
+
+    if (button) button.disabled = true;
+
+    try {
+      await Promise.allSettled([
+        dzLoadBattleRoyaleMap(),
+        dzLoadPlaylists(),
+        dzLoadNewCosmetics()
+      ]);
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  function dzInit() {
+    const refreshButton = $("refreshMaps");
+
+    if (refreshButton) {
+      refreshButton.addEventListener("click", dzRefreshMaps);
+    }
+
+    dzLoadReloadMap();
+    dzRefreshMaps();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", dzInit, { once: true });
+  } else {
+    dzInit();
+  }
+})();
