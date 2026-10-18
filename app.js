@@ -1,31 +1,56 @@
+
 const translations = {
   de: {
-    navHome: "Startseite", navMap: "Battle Royale Map", navShop: "Item-Shop",
-    languageLabel: "Sprache", heroEyebrow: "DEIN FORTNITE HUB", heroLine1: "DROP IN.",
-    heroLine2: "GEAR UP.", heroText: "Dein Hub für den Fortnite-Shop und die Battle-Royale-Karte.",
-    heroShop: "Shop ansehen", heroMap: "Karte öffnen ↗", shopEyebrow: "TÄGLICH NEU",
-    shopTitle: "FORTNITE ITEM-SHOP.", refresh: "Aktualisieren", shopLoading: "Shop wird geladen …",
+    navHome: "Startseite",
+    navMap: "Battle Royale Map",
+    navShop: "Item-Shop",
+    languageLabel: "Sprache",
+    heroEyebrow: "DEIN FORTNITE HUB",
+    heroLine1: "DROP IN.",
+    heroLine2: "GEAR UP.",
+    heroText: "Dein Hub für den Fortnite-Shop und die Battle-Royale-Karte.",
+    heroShop: "Shop ansehen",
+    heroMap: "Karte öffnen ↗",
+    shopEyebrow: "TÄGLICH NEU",
+    shopTitle: "FORTNITE ITEM-SHOP.",
+    refresh: "Aktualisieren",
+    shopLoading: "Shop wird geladen …",
     shopNote: "Die Verfügbarkeit hängt von der API ab. Dropzone ist ein Fan-Projekt und nicht mit Epic Games verbunden.",
-    mapEyebrow: "PLAN YOUR DROP", mapTitle: "DIE INSEL WARTET.", mapText: "Öffne die separate Karte und wähle aus, welche Karteninformationen du sehen möchtest.",
-    mapButton: "Battle Royale Map öffnen ↗", footerNote: "Fan-Projekt — nicht mit Epic Games verbunden.",
+    mapEyebrow: "PLAN YOUR DROP",
+    mapTitle: "DIE INSEL WARTET.",
+    mapText: "Öffne die separate Karte und wähle aus, welche Karteninformationen du sehen möchtest.",
+    mapButton: "Battle Royale Map öffnen ↗",
+    footerNote: "Fan-Projekt — nicht mit Epic Games verbunden.",
     shopError: "Der Shop konnte nicht geladen werden. Bitte später erneut versuchen.",
     noItems: "Die API hat aktuell keine Shop-Artikel zurückgegeben."
   },
   en: {
-    navHome: "Home", navMap: "Battle Royale Map", navShop: "Item Shop",
-    languageLabel: "Language", heroEyebrow: "YOUR FORTNITE HUB", heroLine1: "DROP IN.",
-    heroLine2: "GEAR UP.", heroText: "Your hub for the Fortnite shop and Battle Royale map.",
-    heroShop: "View shop", heroMap: "Open map ↗", shopEyebrow: "DAILY UPDATE",
-    shopTitle: "FORTNITE ITEM SHOP.", refresh: "Refresh", shopLoading: "Loading shop …",
+    navHome: "Home",
+    navMap: "Battle Royale Map",
+    navShop: "Item Shop",
+    languageLabel: "Language",
+    heroEyebrow: "YOUR FORTNITE HUB",
+    heroLine1: "DROP IN.",
+    heroLine2: "GEAR UP.",
+    heroText: "Your hub for the Fortnite shop and Battle Royale map.",
+    heroShop: "View shop",
+    heroMap: "Open map ↗",
+    shopEyebrow: "DAILY UPDATE",
+    shopTitle: "FORTNITE ITEM SHOP.",
+    refresh: "Refresh",
+    shopLoading: "Loading shop …",
     shopNote: "Availability depends on the API. Dropzone is a fan project and is not affiliated with Epic Games.",
-    mapEyebrow: "PLAN YOUR DROP", mapTitle: "THE ISLAND AWAITS.", mapText: "Open the separate map and choose which map information to display.",
-    mapButton: "Open Battle Royale Map ↗", footerNote: "Fan project — not affiliated with Epic Games.",
+    mapEyebrow: "PLAN YOUR DROP",
+    mapTitle: "THE ISLAND AWAITS.",
+    mapText: "Open the separate map and choose which map information to display.",
+    mapButton: "Open Battle Royale Map ↗",
+    footerNote: "Fan project — not affiliated with Epic Games.",
     shopError: "Could not load the shop. Please try again later.",
     noItems: "The API did not return any shop items right now."
   }
 };
 
-// API key for the Fortnite API
+// Fortnite API key
 const API_KEY = "613bf376-b744-4781-917f-707018a83c9a";
 const SHOP_URL = "https://fortnite-api.com/v2/shop";
 
@@ -57,6 +82,7 @@ function applyLanguage(language) {
 async function loadShop() {
   const status = document.getElementById("shopStatus");
   const grid = document.getElementById("shopGrid");
+
   if (!status || !grid) return;
 
   status.dataset.state = "loading";
@@ -75,21 +101,24 @@ async function loadShop() {
     );
 
     if (!response.ok) {
-      throw new Error(`Shop API returned ${response.status}`);
+      const details = await response.text();
+      throw new Error(`Shop API returned ${response.status}: ${details}`);
     }
 
     const json = await response.json();
     const entries = json?.data?.entries || [];
 
-    if (!entries.length) {
+    const items = entries.flatMap((entry) =>
+      (entry.items || []).map((item) => ({ item, entry }))
+    );
+
+    if (!items.length) {
       status.textContent = translations[getLanguage()].noItems;
       status.dataset.state = "done";
       return;
     }
 
-    entries.flatMap(entry =>
-      (entry.items || []).map(item => ({ item, entry }))
-    ).slice(0, 36).forEach(({ item, entry }) => {
+    items.slice(0, 36).forEach(({ item, entry }) => {
       const card = document.createElement("article");
       card.className = "shop-card";
 
@@ -101,6 +130,7 @@ async function loadShop() {
         item.images?.featured ||
         item.images?.smallIcon ||
         "";
+
       image.onerror = () => {
         image.style.visibility = "hidden";
       };
@@ -113,10 +143,11 @@ async function loadShop() {
 
       const price = document.createElement("p");
       const amount = entry.finalPrice ?? entry.regularPrice;
+
       price.textContent =
         amount != null
           ? `${amount} V-Bucks`
-          : (item.type?.displayValue || "Fortnite");
+          : item.type?.displayValue || "Fortnite";
 
       body.append(title, price);
       card.append(image, body);
@@ -137,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (languageSelect) {
     languageSelect.value = getLanguage();
+
     languageSelect.addEventListener("change", () => {
       applyLanguage(languageSelect.value);
       loadShop();
@@ -144,10 +176,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const refresh = document.getElementById("refreshShop");
-  if (refresh) refresh.addEventListener("click", loadShop);
+  if (refresh) {
+    refresh.addEventListener("click", loadShop);
+  }
 
   const year = document.getElementById("year");
-  if (year) year.textContent = new Date().getFullYear();
+  if (year) {
+    year.textContent = new Date().getFullYear();
+  }
 
   applyLanguage(getLanguage());
   loadShop();
