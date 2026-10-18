@@ -248,7 +248,7 @@ async function loadShop() {
       method: "GET",
       headers: {
         "Accept": "application/json",
-        "x-api-key": API_KEY
+        "Authorization": `ApiKey ${API_KEY}`
       },
       cache: "no-store"
     });
