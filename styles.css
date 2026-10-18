@@ -19,13 +19,12 @@ body {
     radial-gradient(ellipse at 80% 0%, rgba(112, 36, 166, .17), transparent 42%),
     var(--bg);
   color: var(--text); font-family: Inter, system-ui, sans-serif;
-  max-width: 100%;
   overflow-x: hidden;
-  box-sizing: border-box;
 }
 a { color: inherit; text-decoration: none; }
 button, select, input { font: inherit; }
 button, a, select { -webkit-tap-highlight-color: transparent; }
+
 .site-header {
   min-height: 78px; display: flex; align-items: center; gap: 26px;
   justify-content: space-between; padding: 14px clamp(18px, 5vw, 72px);
@@ -38,10 +37,12 @@ button, a, select { -webkit-tap-highlight-color: transparent; }
 .main-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(12px, 2.2vw, 30px); }
 .main-nav a { color: var(--muted); font-size: 13px; font-weight: 700; transition: color .2s; }
 .main-nav a:hover, .main-nav a.active { color: var(--pink); }
+
 .language-control select, .language-select {
   color: var(--text); background: var(--panel); border: 1px solid var(--line);
   border-radius: 8px; padding: 9px 11px; cursor: pointer;
 }
+
 .hero {
   min-height: 490px; display: grid; grid-template-columns: 1.2fr .8fr;
   align-items: center; gap: 36px; padding: 70px clamp(20px, 8vw, 120px);
@@ -51,8 +52,10 @@ button, a, select { -webkit-tap-highlight-color: transparent; }
 h1, h2, h3 { font-family: Orbitron, Inter, sans-serif; line-height: 1.16; }
 h1 { font-size: clamp(42px, 7vw, 82px); margin: 18px 0; letter-spacing: -.05em; }
 h2 { font-size: clamp(24px, 3.3vw, 39px); margin: 8px 0 16px; }
+
 .hero-description, .map-promo p:not(.eyebrow) { max-width: 560px; color: var(--muted); line-height: 1.8; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
 .button {
   border-radius: 8px; padding: 12px 17px; display: inline-flex; justify-content: center;
   align-items: center; border: 1px solid var(--line); font-size: 13px; font-weight: 800;
@@ -61,43 +64,37 @@ h2 { font-size: clamp(24px, 3.3vw, 39px); margin: 8px 0 16px; }
 .button:hover { transform: translateY(-2px); border-color: var(--pink); box-shadow: var(--glow); }
 .button-primary { background: linear-gradient(115deg, #7e22ce, #c026d3); border-color: transparent; color: white; }
 .button-ghost { background: rgba(255,255,255,.025); color: var(--text); }
+
 .hero-logo { display: grid; place-items: center; min-height: 280px; position: relative; }
 .hero-logo img { max-width: min(100%, 390px); max-height: 340px; object-fit: contain; filter: drop-shadow(0 0 35px rgba(168,85,247,.4)); }
-.logo-fallback { display: none; font: 800 clamp(100px, 16vw, 200px) Orbitron, sans-serif; color: var(--purple); text-shadow: 0 0 40px rgba(168,85,247,.5); }
-.logo-fallback span { color: var(--pink); }
+
 .section { padding: 64px clamp(18px, 7vw, 100px); }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
 .status { color: var(--muted); }
 
-/* --- FIX FÜR SHOP-BILDER & GRÖßEN --- */
+/* SHOP GRID & KARTEN */
 .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
 .shop-card { 
   min-width: 0; 
   border: 1px solid var(--line); 
   border-radius: 12px; 
   background: linear-gradient(145deg, var(--panel2), var(--panel)); 
-  overflow: hidden !important; 
-  box-shadow: var(--glow);
+  overflow: hidden; 
+  box-shadow: var(--glow); 
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-
-/* Zwingt JEDES Bild im Shop, sich anzupassen und nicht mehr den Bildschirm zu sprengen */
-.shop-grid img, 
-.shop-card img, 
-#shop img, 
-div[id*="shop"] img { 
+/* Nur die Bilder INKLUSIVE Shop-Karten werden hier im Format beschränkt – das Logo oben bleibt unberührt! */
+.shop-card img { 
   width: 100% !important; 
-  height: 140px !important;
-  max-height: 140px !important;
+  height: 150px !important; 
+  max-height: 150px !important;
   object-fit: contain !important; 
   background: rgba(0,0,0,.18); 
-  padding: 10px; 
-  display: block !important;
-  margin: 0 auto !important;
+  padding: 12px; 
+  display: block;
 }
-
 .shop-card-body { padding: 14px; }
 .shop-card h3 { font-size: 13px; min-height: 32px; margin: 0 0 9px; }
 .shop-card p { margin: 0; color: var(--muted); font-size: 12px; }
@@ -105,20 +102,6 @@ div[id*="shop"] img {
 .fine-print, .site-footer { color: var(--muted); font-size: 12px; line-height: 1.7; }
 .map-promo { margin: 0 clamp(18px, 7vw, 100px) 70px; padding: 28px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(120deg, rgba(126,34,206,.17), rgba(232,121,249,.04)); display: flex; align-items: center; justify-content: space-between; gap: 28px; }
 .site-footer { border-top: 1px solid var(--line); padding: 22px clamp(18px, 5vw, 72px); display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-
-.map-layout { padding-top: 34px; }
-.map-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px; margin: 18px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
-.map-toolbar label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); cursor: pointer; }
-.map-toolbar input { accent-color: var(--pink); width: 16px; height: 16px; }
-.map-frame { border: 1px solid rgba(192,132,252,.5); border-radius: 12px; overflow: auto; background: #0c0812; box-shadow: var(--glow); }
-.map-frame img { display: block; width: 100%; height: auto; min-width: 600px; }
-.map-status { padding: 26px; color: var(--muted); line-height: 1.6; }
-.map-status.error { color: #fda4af; }
-.map-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
-.map-place { border: 1px solid var(--line); background: var(--panel); color: var(--text); padding: 8px 11px; border-radius: 7px; cursor: pointer; }
-.map-place:hover { border-color: var(--pink); }
-.map-note { color: var(--muted); font-size: 12px; line-height: 1.7; }
 
 @media (max-width: 760px) {
   .site-header { position: static; flex-wrap: wrap; gap: 14px; }
@@ -128,14 +111,4 @@ div[id*="shop"] img {
   .hero-logo img { max-height: 200px; }
   .section-heading, .map-promo { align-items: flex-start; flex-direction: column; }
   .map-promo { margin-bottom: 40px; }
-}
-
-img[src*="Neon-Dropzone-Emblem"] {
-  display: block !important;
-  width: min(420px, 90vw) !important;
-  max-width: 100% !important;
-  height: auto !important;
-  max-height: 420px !important;
-  object-fit: contain;
-  margin: 12px auto !important;
 }
