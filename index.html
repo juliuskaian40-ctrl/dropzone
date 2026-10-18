@@ -1,118 +1,132 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#10110f">
-  <title>DROPZONE — Fortnite Intel</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
+  <meta name="theme-color" content="#07050c">
+  <meta name="description" content="DROPZONE – dein futuristischer Fortnite-Hub für aktuelle Item-Shop-Angebote.">
+  <title>DROPZONE | Fortnite Dashboard</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
 </head>
 <body>
   <header class="topbar">
-    <a href="#" class="logo"><span>DROP</span>ZONE<span class="logo-dot">.</span></a>
-    <nav>
-      <a href="#maps">Maps</a>
+    <a href="#home" class="logo" aria-label="DROPZONE Startseite">
+      <span>DROP</span>ZONE<span class="dot">.</span>
+    </a>
+
+    <nav aria-label="Hauptnavigation">
+      <a href="#home">Dashboard</a>
       <a href="#shop">Item Shop</a>
-      <a href="#modes">Modes</a>
-      <a href="#news">News</a>
     </nav>
-    <span class="status"><i></i> API CONNECTED</span>
+
+    <span class="live"><span></span> FORTNITE</span>
   </header>
 
-  <main>
+  <main id="home">
     <section class="hero">
-      <div class="eyebrow">YOUR FORTNITE INTELLIGENCE HUB</div>
-      <h1>DROP INTO<br><span>THE ACTION.</span></h1>
-      <p>Maps, cosmetics, item shop and live Fortnite information in one place.</p>
-      <a class="primary-btn" href="#maps">EXPLORE THE ISLAND ↘</a>
-    </section>
+      <div class="hero-copy">
+        <p class="eyebrow">YOUR FORTNITE HUB</p>
 
-    <section id="maps" class="section">
-      <div class="section-heading">
-        <div><div class="eyebrow">01 / THE ISLAND</div><h2>MAPS<span>.</span></h2></div>
-        <button id="refreshBtn" class="outline-btn">↻ Refresh data</button>
+        <h1>
+          DROP INTO<br>
+          <span>THE ACTION.</span>
+        </h1>
+
+        <p class="hero-description">
+          Entdecke die neuesten Fortnite-Items und finde deine nächsten
+          Lieblingsskins.
+        </p>
+
+        <a class="main-button" href="#shop">
+          SHOP ENTDECKEN <span aria-hidden="true">↘</span>
+        </a>
+
+        <div class="hero-meta">
+          <span class="meta-indicator"></span>
+          <span>YOUR NEXT DROP STARTS HERE</span>
+        </div>
       </div>
 
-      <div class="map-grid">
-        <article class="panel map-panel">
-          <div class="panel-heading">
-            <div><span class="tag green">BATTLE ROYALE</span><h3>Current Island</h3></div>
-            <span class="live">LIVE DATA</span>
-          </div>
-          <div class="map-stage">
-            <img id="brMap" alt="Fortnite Battle Royale map" hidden>
-            <div id="brMapStatus" class="placeholder">Loading Battle Royale map...</div>
-          </div>
-          <div class="panel-footer">
-            <span id="brMapVersion">CURRENT MAP</span>
-            <a id="openBrMap" href="https://fortnite-api.com/" target="_blank" rel="noopener">Open map ↗</a>
-          </div>
-          <div id="poiList" class="poi-list"></div>
-        </article>
+      <div class="hero-graphic" aria-hidden="true">
+        <div class="orbit orbit-a"></div>
+        <div class="orbit orbit-b"></div>
+        <div class="orbit orbit-c"></div>
 
-        <article class="panel map-panel">
-          <div class="panel-heading">
-            <div><span class="tag blue">RELOAD</span><h3>Reload Island</h3></div>
-            <span class="live blue-text">RELOAD</span>
-          </div>
-          <div class="map-stage reload-stage">
-            <img id="reloadMap" alt="Fortnite Reload map" hidden>
-            <div id="reloadStatus" class="placeholder">
-              Reload map image not configured yet.
-            </div>
-          </div>
-          <div class="panel-footer">
-            <span>RELOAD MODE</span>
-            <a href="https://www.fortnite.com/" target="_blank" rel="noopener">Fortnite ↗</a>
-          </div>
-          <p class="small-note">A separate verified Reload map image URL is needed for this panel.</p>
-        </article>
+        <div class="emblem">
+          DZ
+          <small>DROPZONE</small>
+        </div>
+
+        <span class="floating floating-a">ITEM SHOP</span>
+        <span class="floating floating-b">BATTLE ROYALE</span>
+
+        <span class="graphic-cross cross-a">+</span>
+        <span class="graphic-cross cross-b">+</span>
+      </div>
+
+      <div class="hero-index" aria-hidden="true">
+        <span>DROPZONE / 001</span>
+        <span>FORTNITE COMMUNITY HUB</span>
       </div>
     </section>
 
-    <section id="shop" class="section">
-      <div class="section-heading">
-        <div><div class="eyebrow">02 / DAILY ROTATION</div><h2>ITEM SHOP<span>.</span></h2></div>
-        <span id="shopUpdated" class="muted">Fetching data...</span>
+    <section id="shop" class="shop-section">
+      <div class="section-label">
+        <span>01</span> / DAILY ROTATION
       </div>
-      <div id="shopGrid" class="shop-grid">
-        <div class="placeholder">Loading shop...</div>
-      </div>
-    </section>
 
-    <section id="modes" class="section">
       <div class="section-heading">
-        <div><div class="eyebrow">03 / GAMEPLAY</div><h2>GAME MODES<span>.</span></h2></div>
-      </div>
-      <div id="modeGrid" class="mode-grid">
-        <div class="placeholder">Loading playlists...</div>
-      </div>
-    </section>
+        <div>
+          <p class="eyebrow">THE LATEST DROPS</p>
+          <h2>ITEM <span>SHOP</span></h2>
+          <p class="subheading">
+            Aktuelle Angebote mit Bildern, Seltenheit und Preisen.
+          </p>
+        </div>
 
-    <section id="cosmetics" class="section">
-      <div class="section-heading">
-        <div><div class="eyebrow">04 / COLLECTION</div><h2>NEW COSMETICS<span>.</span></h2></div>
+        <button id="refreshShop" class="refresh-button" type="button">
+          <span aria-hidden="true">↻</span> Neu laden
+        </button>
       </div>
-      <div id="cosmeticGrid" class="cosmetic-grid">
-        <div class="placeholder">Loading cosmetics...</div>
-      </div>
-    </section>
 
-    <section id="news" class="section">
-      <div class="section-heading">
-        <div><div class="eyebrow">05 / INTEL FEED</div><h2>FORTNITE NEWS<span>.</span></h2></div>
+      <div class="toolbar">
+        <label class="search-box">
+          <span aria-hidden="true">⌕</span>
+          <input
+            id="shopSearch"
+            type="search"
+            placeholder="Suche nach Items ..."
+            aria-label="Items suchen"
+            autocomplete="off"
+          >
+        </label>
+
+        <span id="itemCount">LÄDT ...</span>
       </div>
-      <div id="newsGrid" class="news-grid">
-        <div class="placeholder">Loading news...</div>
+
+      <div id="shopStatus" class="status" role="status" aria-live="polite">
+        <span class="spinner"></span>
+        <span>Item-Shop wird geladen ...</span>
       </div>
+
+      <div id="shopGrid" class="shop-grid"></div>
+
+      <p class="disclaimer">
+        DROPZONE ist ein inoffizielles Fan-Projekt und nicht mit Epic Games
+        verbunden.
+      </p>
     </section>
   </main>
 
   <footer>
-    <a href="#" class="logo"><span>DROP</span>ZONE<span class="logo-dot">.</span></a>
-    <p>Fan-made Fortnite dashboard. Not affiliated with Epic Games.</p>
+    <a href="#home" class="logo" aria-label="Zurück nach oben">
+      <span>DROP</span>ZONE<span class="dot">.</span>
+    </a>
+
+    <span>MADE FOR THE BATTLE.</span>
+
+    <a class="back-top" href="#home">BACK TO TOP ↑</a>
   </footer>
 </body>
 </html>
