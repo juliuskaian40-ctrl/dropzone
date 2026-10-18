@@ -1,25 +1,21 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#07050c">
-  <meta name="description" content="DROPZONE – dein futuristischer Fortnite-Hub für aktuelle Item-Shop-Angebote.">
+  <meta name="theme-color" content="#0c0714">
   <title>DROPZONE | Fortnite Dashboard</title>
   <link rel="stylesheet" href="./styles.css">
   <script src="./app.js" defer></script>
 </head>
 <body>
   <header class="topbar">
-    <a href="#home" class="logo" aria-label="DROPZONE Startseite">
-      <span>DROP</span>ZONE<span class="dot">.</span>
-    </a>
-
-    <nav aria-label="Hauptnavigation">
+    <a href="#home" class="logo"><span>DROP</span>ZONE<span class="dot">.</span></a>
+    <nav>
       <a href="#home">Dashboard</a>
       <a href="#shop">Item Shop</a>
     </nav>
-
     <span class="live"><span></span> FORTNITE</span>
   </header>
 
@@ -27,106 +23,53 @@
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow">YOUR FORTNITE HUB</p>
-
-        <h1>
-          DROP INTO<br>
-          <span>THE ACTION.</span>
-        </h1>
-
+        <h1>DROP INTO<br><span>THE ACTION.</span></h1>
         <p class="hero-description">
-          Entdecke die neuesten Fortnite-Items und finde deine nächsten
-          Lieblingsskins.
+          Entdecke die neuesten Fortnite-Items und finde deine nächsten Lieblingsskins.
         </p>
-
-        <a class="main-button" href="#shop">
-          SHOP ENTDECKEN <span aria-hidden="true">↘</span>
-        </a>
-
-        <div class="hero-meta">
-          <span class="meta-indicator"></span>
-          <span>YOUR NEXT DROP STARTS HERE</span>
-        </div>
+        <a class="main-button" href="#shop">SHOP ENTDECKEN ↘</a>
       </div>
-
       <div class="hero-graphic" aria-hidden="true">
         <div class="orbit orbit-a"></div>
         <div class="orbit orbit-b"></div>
-        <div class="orbit orbit-c"></div>
-
-        <div class="emblem">
-          DZ
-          <small>DROPZONE</small>
-        </div>
-
+        <div class="emblem">DZ<small>DROPZONE</small></div>
         <span class="floating floating-a">ITEM SHOP</span>
         <span class="floating floating-b">BATTLE ROYALE</span>
-
-        <span class="graphic-cross cross-a">+</span>
-        <span class="graphic-cross cross-b">+</span>
-      </div>
-
-      <div class="hero-index" aria-hidden="true">
-        <span>DROPZONE / 001</span>
-        <span>FORTNITE COMMUNITY HUB</span>
       </div>
     </section>
 
     <section id="shop" class="shop-section">
-      <div class="section-label">
-        <span>01</span> / DAILY ROTATION
-      </div>
+      <div class="section-label">01 / DAILY ROTATION</div>
 
       <div class="section-heading">
         <div>
           <p class="eyebrow">THE LATEST DROPS</p>
           <h2>ITEM <span>SHOP</span></h2>
-          <p class="subheading">
-            Aktuelle Angebote mit Bildern, Seltenheit und Preisen.
-          </p>
+          <p class="subheading">Aktuelle Angebote mit Bildern, Seltenheit und Preisen.</p>
         </div>
-
-        <button id="refreshShop" class="refresh-button" type="button">
-          <span aria-hidden="true">↻</span> Neu laden
-        </button>
+        <button id="refreshShop" class="refresh-button" type="button">↻ Neu laden</button>
       </div>
 
       <div class="toolbar">
-        <label class="search-box">
-          <span aria-hidden="true">⌕</span>
-          <input
-            id="shopSearch"
-            type="search"
-            placeholder="Suche nach Items ..."
-            aria-label="Items suchen"
-            autocomplete="off"
-          >
-        </label>
-
+        <input id="shopSearch" type="search" placeholder="⌕  Suche nach Items ..." aria-label="Items suchen">
         <span id="itemCount">LÄDT ...</span>
       </div>
 
       <div id="shopStatus" class="status" role="status" aria-live="polite">
-        <span class="spinner"></span>
-        <span>Item-Shop wird geladen ...</span>
+        <span class="spinner"></span> Item-Shop wird geladen ...
       </div>
 
       <div id="shopGrid" class="shop-grid"></div>
 
       <p class="disclaimer">
-        DROPZONE ist ein inoffizielles Fan-Projekt und nicht mit Epic Games
-        verbunden.
+        DROPZONE ist ein inoffizielles Fan-Projekt und nicht mit Epic Games verbunden.
       </p>
     </section>
   </main>
 
   <footer>
-    <a href="#home" class="logo" aria-label="Zurück nach oben">
-      <span>DROP</span>ZONE<span class="dot">.</span>
-    </a>
-
-    <span>MADE FOR THE BATTLE.</span>
-
-    <a class="back-top" href="#home">BACK TO TOP ↑</a>
+    <a href="#home" class="logo"><span>DROP</span>ZONE<span class="dot">.</span></a>
+    <span>Made for the Battle.</span>
   </footer>
 </body>
 </html>
