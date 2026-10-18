@@ -16,7 +16,7 @@ export async function onRequest(context) {
       `https://fortnite-api.com/v2/shop?language=${encodeURIComponent(language)}`,
       {
         headers: {
-          "x-api-key": apiKey,
+          "Authorization": `ApiKey ${apiKey}`,
           Accept: "application/json"
         }
       }
