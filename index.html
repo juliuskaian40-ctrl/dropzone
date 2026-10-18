@@ -1,74 +1,131 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0c0714">
-  <title>DROPZONE | Fortnite Dashboard</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script src="./app.js" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08030f">
+  <meta name="description" content="Dropzone – dein Fortnite Item Shop im Neon-Look.">
+  <title>DROPZONE — Fortnite Item Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
 </head>
 <body>
-  <header class="topbar">
-    <a href="#home" class="logo"><span>DROP</span>ZONE<span class="dot">.</span></a>
-    <nav>
-      <a href="#home">Dashboard</a>
-      <a href="#shop">Item Shop</a>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="scanlines"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="Dropzone Startseite">
+      <img src="dropzone-logo.png" alt="DROPZONE Neon Logo" class="brand-logo">
+    </a>
+
+    <nav class="main-nav">
+      <a href="#shop">ITEM SHOP</a>
+      <a href="#about">ÜBER DROPZONE</a>
     </nav>
-    <span class="live"><span></span> FORTNITE</span>
+
+    <a class="header-button" href="#shop">SHOP ÖFFNEN <span>↗</span></a>
   </header>
 
-  <main id="home">
+  <main>
     <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">YOUR FORTNITE HUB</p>
-        <h1>DROP INTO<br><span>THE ACTION.</span></h1>
+      <div class="hero-grid"></div>
+      <div class="hero-content">
+        <div class="status-line">
+          <span class="status-dot"></span>
+          FORTNITE ITEM SHOP
+          <span class="status-separator">/</span>
+          LIVE
+        </div>
+
+        <h1>ENTER THE<br><span>DROPZONE.</span></h1>
         <p class="hero-description">
-          Entdecke die neuesten Fortnite-Items und finde deine nächsten Lieblingsskins.
+          Dein Loot. Dein Style. Deine Zone.<br>
+          Entdecke die neuesten Items im Fortnite-Shop.
         </p>
-        <a class="main-button" href="#shop">SHOP ENTDECKEN ↘</a>
+
+        <div class="hero-actions">
+          <a class="button button-primary" href="#shop">SHOP ENTDECKEN <span>→</span></a>
+          <a class="button button-ghost" href="#about">MEHR ERFAHREN</a>
+        </div>
+
+        <div class="hero-meta">
+          <div><span class="meta-number">01</span><span class="meta-label">YOUR ZONE</span></div>
+          <div><span class="meta-number">02</span><span class="meta-label">YOUR LOOT</span></div>
+          <div><span class="meta-number">03</span><span class="meta-label">YOUR STYLE</span></div>
+        </div>
       </div>
-      <div class="hero-graphic" aria-hidden="true">
-        <div class="orbit orbit-a"></div>
-        <div class="orbit orbit-b"></div>
-        <div class="emblem">DZ<small>DROPZONE</small></div>
-        <span class="floating floating-a">ITEM SHOP</span>
-        <span class="floating floating-b">BATTLE ROYALE</span>
+
+      <div class="hero-emblem" aria-hidden="true">
+        <div class="emblem-ring"></div>
+        <div class="emblem-core">D<span>↓</span></div>
+        <div class="emblem-caption">DROPZONE // EST. FOR GAMERS</div>
+      </div>
+
+      <div class="hero-index">DZ<span> / </span>001</div>
+      <div class="hero-bottom-line"></div>
+    </section>
+
+    <section class="shop-section" id="shop">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow"><span></span> DAILY ROTATION</div>
+          <h2>THE <span>ITEM SHOP</span></h2>
+          <p class="section-description">Was heute in der Zone auf dich wartet.</p>
+        </div>
+        <button class="button button-ghost refresh-button" id="refresh-button" type="button">
+          <span class="refresh-icon">↻</span> SHOP AKTUALISIEREN
+        </button>
+      </div>
+
+      <div class="shop-toolbar">
+        <label class="search-box">
+          <span class="search-icon">⌕</span>
+          <input id="search-input" type="search" placeholder="Items durchsuchen..." autocomplete="off">
+          <span class="search-hint">SEARCH</span>
+        </label>
+        <div class="shop-count" id="shop-count">ITEMS <span>—</span></div>
+      </div>
+
+      <div class="shop-status" id="shop-status" role="status" aria-live="polite">
+        <span class="status-dot"></span>
+        VERBINDE MIT DER ZONE...
+      </div>
+
+      <div class="shop-grid" id="shop-grid">
+        <div class="loading-panel">
+          <div class="loading-ring"></div>
+          <p>LOOT WIRD GELADEN</p>
+          <span>BITTE WARTEN...</span>
+        </div>
+      </div>
+
+      <div class="empty-state" id="empty-state" hidden>
+        <span class="empty-symbol">Ø</span>
+        <h3>NICHTS GEFUNDEN</h3>
+        <p>Versuche einen anderen Suchbegriff.</p>
       </div>
     </section>
 
-    <section id="shop" class="shop-section">
-      <div class="section-label">01 / DAILY ROTATION</div>
-
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">THE LATEST DROPS</p>
-          <h2>ITEM <span>SHOP</span></h2>
-          <p class="subheading">Aktuelle Angebote mit Bildern, Seltenheit und Preisen.</p>
-        </div>
-        <button id="refreshShop" class="refresh-button" type="button">↻ Neu laden</button>
+    <section class="about-section" id="about">
+      <div class="about-mark">DZ<span>.</span></div>
+      <div class="about-copy">
+        <div class="eyebrow"><span></span> WELCOME TO THE ZONE</div>
+        <h2>BUILT DIFFERENT.<br><span>GLOW DIFFERENT.</span></h2>
+        <p>Dropzone bringt den Fortnite Item Shop in eine neue Dimension. Dunkel, direkt und mit maximalem Neon-Vibe.</p>
       </div>
-
-      <div class="toolbar">
-        <input id="shopSearch" type="search" placeholder="⌕  Suche nach Items ..." aria-label="Items suchen">
-        <span id="itemCount">LÄDT ...</span>
-      </div>
-
-      <div id="shopStatus" class="status" role="status" aria-live="polite">
-        <span class="spinner"></span> Item-Shop wird geladen ...
-      </div>
-
-      <div id="shopGrid" class="shop-grid"></div>
-
-      <p class="disclaimer">
-        DROPZONE ist ein inoffizielles Fan-Projekt und nicht mit Epic Games verbunden.
-      </p>
+      <div class="about-decoration">DROP<br>INTO<br>THE VOID</div>
     </section>
   </main>
 
-  <footer>
-    <a href="#home" class="logo"><span>DROP</span>ZONE<span class="dot">.</span></a>
-    <span>Made for the Battle.</span>
+  <footer class="site-footer">
+    <a href="#" class="footer-brand">DROPZONE<span>.</span></a>
+    <p>UNOFFICIAL FORTNITE ITEM SHOP EXPERIENCE</p>
+    <a href="#top" class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">BACK TO TOP ↑</a>
   </footer>
 </body>
 </html>
