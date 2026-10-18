@@ -3,12 +3,12 @@
 const API_URL = "https://fortnite-api.com/v2/shop?language=de";
 const API_KEY = "613bf376-b744-4781-917f-707018a83c9a";
 
-const shopGrid = document.getElementById("shop-grid");
+const shopGrid = document.getElementById("shopGrid");
 const searchInput = document.getElementById("search-input");
 const shopStatus = document.getElementById("shop-status");
 const shopCount = document.getElementById("shop-count");
 const emptyState = document.getElementById("empty-state");
-const refreshButton = document.getElementById("refresh-button");
+const refreshButton = document.getElementById("refreshShop");
 
 let allItems = [];
 let currentRequest = 0;
@@ -55,7 +55,7 @@ function getShopEntries(response) {
 function getItemName(item) {
   return (
     item?.bundle?.name ||
-    item?.brItems?.[0]?.name ||
+    item?.items?.br?.[0]?.name ||
     item?.tracks?.[0]?.title ||
     item?.instruments?.[0]?.name ||
     item?.cars?.[0]?.name ||
@@ -69,13 +69,15 @@ function getItemImage(item) {
   const candidates = [
     item?.newDisplayAsset?.renderImages?.[0]?.image,
     item?.newDisplayAsset?.materialInstances?.[0]?.images?.OfferImage,
-    item?.brItems?.[0]?.images?.featured,
-    item?.brItems?.[0]?.images?.icon,
+    item?.items?.br?.[0]?.images?.featured,
+    item?.items?.br?.[0]?.images?.icon,
+    item?.items?.br?.[0]?.images?.icon,
     item?.tracks?.[0]?.albumArt,
     item?.instruments?.[0]?.images?.large,
     item?.cars?.[0]?.images?.icon,
     item?.bundle?.image,
-    item?.images?.icon
+    item?.images?.icon,
+    item?.items?.br?.[0]?.images?.icon
   ];
 
   return candidates.find(value =>
@@ -88,7 +90,7 @@ function getItemPrice(item) {
   const candidates = [
     item?.finalPrice,
     item?.regularPrice,
-    item?.brItems?.[0]?.price,
+    item?.items?.br?.[0]?.price,
     item?.tracks?.[0]?.price
   ];
 
@@ -104,7 +106,7 @@ function getItemPrice(item) {
 function getItemType(item) {
   return (
     item?.layout?.name ||
-    item?.brItems?.[0]?.type?.displayValue ||
+    item?.items?.br?.[0]?.type?.name || item?.items?.br?.[0]?.type?.displayValue ||
     item?.tracks?.[0]?.type ||
     item?.instruments?.[0]?.type?.displayValue ||
     item?.cars?.[0]?.type?.displayValue ||
@@ -181,11 +183,9 @@ function renderItems(items) {
     );
   }
 
-  if (emptyState) {
-    emptyState.hidden = items.length > 0;
-  }
-
   if (items.length === 0) {
+    const message = createElement("p", "loading-panel", "Keine Shop-Artikel gefunden.");
+    shopGrid.appendChild(message);
     return;
   }
 
@@ -238,10 +238,6 @@ function showError(message) {
 
   panel.append(title, description);
   shopGrid.replaceChildren(panel);
-
-  if (emptyState) {
-    emptyState.hidden = true;
-  }
 
   if (shopCount) {
     shopCount.textContent = "ITEMS —";
