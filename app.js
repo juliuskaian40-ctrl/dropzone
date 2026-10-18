@@ -25,8 +25,7 @@ const translations = {
   }
 };
 
-const API_KEY = ""; // Optional: paste your Fortnite-API.com key here if your endpoint requires it.
-const SHOP_URL = "https://fortnite-api.com/v2/shop?language=de";
+const SHOP_URL = `/api/shop?language=${encodeURIComponent(getLanguage())}`;
 
 function getLanguage() {
   return localStorage.getItem("dropzone-language") || "de";
@@ -63,10 +62,9 @@ async function loadShop() {
   grid.replaceChildren();
 
   try {
-    const headers = {};
-    if (API_KEY.trim()) headers["x-api-key"] = API_KEY.trim();
-
-    const response = await fetch(SHOP_URL, { headers });
+    // The API key is kept server-side in the Cloudflare Pages Function.
+    // Never place a private API key in this public frontend file.
+    const response = await fetch(SHOP_URL, { headers: { Accept: "application/json" } });
     if (!response.ok) throw new Error(`Shop API returned ${response.status}`);
 
     const json = await response.json();
