@@ -1,11 +1,270 @@
-onst API='https://fortnite-api.com/v2';const $=id=>document.getElementById(id);let shopItems=[],mapData=null;
-const colors={common:'#a0a5ad',uncommon:'#63b85a',rare:'#4b9be8',epic:'#b56aff',legendary:'#e99a43',mythic:'#e8c64a',exotic:'#62d9cf',marvel:'#e85a63',dc:'#5d91ff',icon:'#d9d9e1',starwars:'#e8d66b'};
-const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function getData(url){const r=await fetch(url,{headers:{Accept:'application/json'}});if(!r.ok)throw Error(API-Fehler (${r.status}));const j=await r.json();if(j.error)throw Error(j.error);return j.data??j}
-function updated(){ $('updated').textContent='AKTUALISIERT '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}); }
-async function loadMap(){const b=$('refreshMap');b.disabled=true;$('mapFrame').innerHTML='<div class="loading"><b></b>MAP WIRD GELADEN</div>';try{mapData=await getData(${API}/map?language=de);const url=mapData?.images?.pois?.url||mapData?.images?.blank?.url||mapData?.images?.all?.url||mapData?.image;if(!url)throw Error('Aktuell ist kein Kartenbild verfügbar.');const img=document.createElement('img');img.src=url;img.alt='Aktuelle Fortnite Battle Royale Inselkarte';img.onerror=()=>{$('mapFrame').textContent='Kartenbild konnte nicht geladen werden. Bitte erneut versuchen.'};$('mapFrame').replaceChildren(img);$('poiCount').textContent=Array.isArray(mapData.pois)?${mapData.pois.length} BENANNTE ORTE:'AKTUELLE INSELKARTE';$('apiStatus').textContent='API VERBUNDEN';updated()}catch(e){$('mapFrame').innerHTML=<div class="loading">${safe(e.message)}<br><br>Bitte Verbindung prüfen und erneut versuchen.</div>;$('poiCount').textContent='MAP-DATEN NICHT VERFÜGBAR';$('apiStatus').textContent='API PRÜFEN'}finally{b.disabled=false}}
-function normalize(data){const entries=Array.isArray(data?.entries)?data.entries:Array.isArray(data)?data:[];let out=[];for(const e of entries){let arr=[...(Array.isArray(e.brItems)?e.brItems:[]),...(Array.isArray(e.items)?e.items:[]),...(e.item?[e.item]:[])];if(!arr.length&&(e.displayName||e.name))arr=[e];for(const it of arr){const imgs=it.images||{};const rar=it.rarity?.value||it.rarity||it.series?.value||it.series||'common';const price=e.finalPrice??e.regularPrice??e.price??it.price;out.push({id:it.id||it.templateId||${it.name}-${out.length},name:it.name||it.displayName||it.title||'Unbekanntes Item',type:it.type?.displayValue||it.type?.value||it.type||'Item',rarity:typeof rar==='string'?rar:'common',image:imgs.featured||imgs.icon||imgs.smallIcon||it.image||it.icon||null,price:price==null||!Number.isFinite(Number(price))?null:Number(price)})}}const seen=new Set();return out.filter(i=>{const k=i.id+'-'+i.name;if(seen.has(k))return false;seen.add(k);return true})}
-async function loadShop(){const b=$('refreshShop');b.disabled=true;$('shopMessage').textContent='Der heutige Shop wird geladen …';try{shopItems=normalize(await getData(${API}/shop?language=de));if(!shopItems.length)throw Error('Die API hat keine Shop-Items im erwarteten Format geliefert.');renderShop();$('shopMessage').textContent='';$('apiStatus').textContent='API VERBUNDEN';updated()}catch(e){$('shopMessage').textContent=${e.message} Die öffentliche API kann vorübergehend nicht erreichbar sein. Bitte später erneut versuchen.;$('shopGrid').innerHTML='';$('itemCount').textContent='—'}finally{b.disabled=false}}
-function renderShop(){const q=$('search').value.trim().toLocaleLowerCase('de');let list=shopItems.filter(i=>i.name.toLocaleLowerCase('de').includes(q));if($('sort').value==='name')list.sort((a,b)=>a.name.localeCompare(b.name,'de'));if($('sort').value==='price')list.sort((a,b)=>(a.price??Infinity)-(b.price??Infinity));$('itemCount').textContent=list.length;$('shopGrid').innerHTML=list.map(i=>{const key=i.rarity.toLowerCase().replace(/[^a-z]/g,'');const color=colors[key]||'#8c7aff';const image=i.image?<img src="${safe(i.image)}" alt="${safe(i.name)}" loading="lazy" onerror="this.remove()">:'';return <article class="item"><div class="art">${image}<span class="type">${safe(i.type)}</span><span class="rarity" style="background:${color}"></span></div><div class="info"><div class="name">${safe(i.name)}</div><div class="item-bottom"><span class="rarity-label" style="color:${color}">${safe(i.rarity)}</span><span class="price">${i.price!==null?<span class="coin">V</span>${i.price.toLocaleString('de-DE')}:'Preis n. v.'}</span></div></div></article>}).join('');if(!list.length)$('shopMessage').textContent=q?'Keine Items zu deiner Suche gefunden.':'Für heute sind keine Items verfügbar.'}
-function mode(name){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===name));const reload=name==='reload';$('reloadNotice').classList.toggle('hidden',!reload);$('mapFrame').classList.toggle('hidden',reload);$('mapTitle').textContent=reload?'Reload Map':'Battle Royale Map';$('mapSubtitle').textContent=reload?'Separate Reload-Kartendaten sind noch nicht verlässlich angebunden.':'Aktuelle Kartenansicht von der Daten-API';$('poiCount').textContent=reload?'RELOAD-MAP NICHT VERIFIZIERT':(Array.isArray(mapData?.pois)?${mapData.pois.length} BENANNTE ORTE:'AKTUELLE INSELKARTE')}
-$('refreshMap').addEventListener('click',loadMap);$('refreshShop').addEventListener('click',loadShop);$('search').addEventListener('input',renderShop);$('sort').addEventListener('change',renderShop);document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>mode(t.dataset.mode)));$('year').textContent=new Date().getFullYear();loadMap();loadShop();setInterval(()=>{loadMap();loadShop()},30*60*1000);                     
+
+"use strict";
+
+// Öffentliche Shop-Datenquelle. Kein API-Key im Browser erforderlich.
+const SHOP_API_URL = "https://fortnite-api.com/v2/shop?language=de";
+
+const grid = document.getElementById("shopGrid");
+const statusBox = document.getElementById("shopStatus");
+const searchInput = document.getElementById("shopSearch");
+const refreshButton = document.getElementById("refreshShop");
+const countLabel = document.getElementById("itemCount");
+
+let allItems = [];
+
+function firstText(...values) {
+  return values.find(value =>
+    typeof value === "string" && value.trim().length > 0
+  ) || "";
+}
+
+function findImage(item, entry) {
+  const renderImages = item?.newDisplayAsset?.renderImages;
+  const entryRenderImages = entry?.newDisplayAsset?.renderImages;
+
+  return firstText(
+    item?.images?.featured,
+    item?.images?.icon,
+    item?.images?.other,
+    item?.images?.smallIcon,
+    item?.displayAssets?.[0]?.url,
+    item?.displayAssets?.[0]?.image,
+    renderImages?.[0]?.image,
+    renderImages?.[0]?.url,
+    entry?.bundle?.image,
+    entry?.displayAssets?.[0]?.url,
+    entry?.displayAssets?.[0]?.image,
+    entryRenderImages?.[0]?.image,
+    entryRenderImages?.[0]?.url
+  );
+}
+
+function findRarity(item) {
+  return firstText(
+    item?.rarity?.displayValue,
+    item?.series?.name,
+    item?.rarity?.value,
+    item?.type?.displayValue,
+    item?.type?.value
+  ) || "Fortnite";
+}
+
+function normalizeShop(json) {
+  const data = json?.data;
+  let entries = [];
+
+  // Fortnite-API.com v2 liefert üblicherweise data.entries.
+  if (Array.isArray(data?.entries)) {
+    entries = data.entries;
+  } else {
+    // Fallback für Antworten mit getrennten Shop-Sektionen.
+    const sections = [
+      data?.featured?.entries,
+      data?.daily?.entries,
+      data?.specialFeatured?.entries,
+      data?.specialDaily?.entries,
+      data?.collaborations?.entries
+    ];
+
+    entries = sections.flatMap(section =>
+      Array.isArray(section) ? section : []
+    );
+  }
+
+  const result = [];
+
+  for (const entry of entries) {
+    const items = Array.isArray(entry?.br) && entry.br.length
+      ? entry.br
+      : Array.isArray(entry?.items) && entry.items.length
+        ? entry.items
+        : [entry];
+
+    const bundleName = entry?.bundle?.name;
+
+    for (const item of items) {
+      const image = findImage(item, entry);
+      const name = firstText(
+        item?.name,
+        item?.displayName,
+        bundleName,
+        entry?.name,
+        entry?.devName
+      );
+
+      if (!image || !name) continue;
+
+      result.push({
+        id: item?.id || entry?.offerId || `${name}-${image}`,
+        name,
+        image,
+        rarity: findRarity(item),
+        type: firstText(
+          item?.type?.displayValue,
+          item?.type?.value,
+          item?.type,
+          entry?.layout?.name,
+          entry?.section?.name
+        ) || "Item Shop",
+        price: Number.isFinite(entry?.finalPrice)
+          ? entry.finalPrice
+          : Number.isFinite(entry?.price?.finalPrice)
+            ? entry.price.finalPrice
+            : Number.isFinite(entry?.regularPrice)
+              ? entry.regularPrice
+              : null
+      });
+    }
+  }
+
+  const seen = new Set();
+
+  return result.filter(item => {
+    const key = `${item.name}|${item.image}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function makeElement(tag, className, text) {
+  const element = document.createElement(tag);
+
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+
+  return element;
+}
+
+function renderShop() {
+  const query = (searchInput?.value || "").trim().toLowerCase();
+
+  const filtered = allItems.filter(item =>
+    item.name.toLowerCase().includes(query) ||
+    item.rarity.toLowerCase().includes(query) ||
+    item.type.toLowerCase().includes(query)
+  );
+
+  grid.replaceChildren();
+  countLabel.textContent = `${filtered.length} ITEMS`;
+
+  if (filtered.length === 0) {
+    const message = allItems.length
+      ? "Keine Items gefunden. Versuche einen anderen Suchbegriff."
+      : "Keine Items mit Bildern gefunden. Die API-Antwort muss geprüft werden.";
+
+    statusBox.classList.remove("hidden");
+    statusBox.replaceChildren(makeElement("span", "", message));
+    return;
+  }
+
+  statusBox.classList.add("hidden");
+
+  const fragment = document.createDocumentFragment();
+
+  for (const item of filtered) {
+    const card = makeElement("article", "shop-card");
+
+    const imageArea = makeElement("div", "shop-card-image");
+    const image = document.createElement("img");
+
+    image.src = item.image;
+    image.alt = item.name;
+    image.loading = "lazy";
+    image.decoding = "async";
+
+    image.addEventListener("error", () => {
+      imageArea.classList.add("image-error");
+      image.remove();
+      imageArea.append(
+        makeElement("span", "image-fallback", "Bild nicht verfügbar")
+      );
+    }, { once: true });
+
+    const rarity = makeElement("span", "shop-rarity", item.rarity);
+    imageArea.append(image, rarity);
+
+    const details = makeElement("div", "shop-card-details");
+    const title = makeElement("h3", "", item.name);
+    const type = makeElement("p", "item-type", item.type);
+
+    details.append(title, type);
+
+    if (item.price !== null) {
+      const price = makeElement("div", "shop-price");
+      price.append(
+        makeElement("span", "vbuck-symbol", "V"),
+        document.createTextNode(`${item.price.toLocaleString("de-DE")} V-Bucks`)
+      );
+      details.append(price);
+    }
+
+    card.append(imageArea, details);
+    fragment.append(card);
+  }
+
+  grid.append(fragment);
+}
+
+async function loadShop() {
+  refreshButton.disabled = true;
+  refreshButton.setAttribute("aria-busy", "true");
+  statusBox.classList.remove("hidden");
+  statusBox.replaceChildren(
+    makeElement("span", "loading-spinner"),
+    makeElement("span", "", "Item-Shop wird geladen ...")
+  );
+
+  try {
+    const response = await fetch(SHOP_API_URL, {
+      headers: { Accept: "application/json" },
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const json = await response.json();
+
+    if (json?.status && json.status !== 200) {
+      throw new Error(json.error || "Die API hat einen Fehler zurückgegeben.");
+    }
+
+    allItems = normalizeShop(json);
+
+    if (allItems.length === 0) {
+      countLabel.textContent = "0 ITEMS";
+      statusBox.replaceChildren(
+        makeElement(
+          "span",
+          "",
+          "Die API hat geantwortet, aber keine verwendbaren Shop-Bilder geliefert. Öffne die Entwicklerkonsole für Details."
+        )
+      );
+      console.warn("Unerwartete Shop-Antwort:", json);
+      return;
+    }
+
+    renderShop();
+  } catch (error) {
+    console.error("DROPZONE Item-Shop:", error);
+
+    countLabel.textContent = "OFFLINE";
+    statusBox.replaceChildren(
+      makeElement(
+        "span",
+        "",
+        "Shop konnte nicht geladen werden. Prüfe deine Internetverbindung, die API und die Browserkonsole."
+      )
+    );
+  } finally {
+    refreshButton.disabled = false;
+    refreshButton.removeAttribute("aria-busy");
+  }
+}
+
+searchInput.addEventListener("input", renderShop);
+refreshButton.addEventListener("click", loadShop);
+
+loadShop();
