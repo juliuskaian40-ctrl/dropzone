@@ -97,3 +97,25 @@ h2 { font-size: clamp(24px, 3.3vw, 39px); margin: 8px 0 16px; }
   .section-heading, .map-promo { align-items: flex-start; flex-direction: column; }
   .map-promo { margin-bottom: 40px; }
 }
+
+/* DROPZONE – kleines, responsives Logo-Banner */
+img[src*="Neon-Dropzone-Emblem"] {
+  display: block !important;
+  width: min(320px, 85vw) !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: 110px !important;
+  object-fit: contain;
+  margin: 12px auto !important;
+}
+
+/* Verhindert horizontales Zusammenschieben */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  box-sizing: border-box;
+}
