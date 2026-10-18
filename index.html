@@ -1,128 +1,100 @@
 
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b0912">
-  <meta name="description" content="DROPZONE – Fortnite Item-Shop und Maps">
-  <title>DROPZONE — Fortnite Intel</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="topbar">
-    <a class="brand" href="#top">
-      <span class="mark">D</span>
-      <span>DROP<span class="accent">ZONE</span>
-        <small>FORTNITE INTEL</small>
-      </span>
-    </a>
-    <nav>
-      <a href="#maps">Maps</a>
-      <a href="#shop">Item-Shop</a>
-    </nav>
-    <span class="live"><i></i><span id="apiStatus">VERBINDE …</span></span>
-  </header>
+<section id="tracker" class="section">
+  <div class="section-head">
+    <div>
+      <div class="kicker">03 / PLAYER INTEL</div>
+      <h2>Player <em>Tracker</em></h2>
+    </div>
+    <span class="tracker-badge">EXTERNER TRACKER</span>
+  </div>
 
-  <main id="top">
-    <section class="hero">
-      <div class="eyebrow"><span class="pulse"></span> DEIN FORTNITE DASHBOARD</div>
-      <h1>DROP IN.<br><span>OWN THE NIGHT.</span></h1>
-      <p>Dein Shop. Deine Map. Dein Dropzone.</p>
-      <div class="hero-meta">
-        <span>COMMUNITY PROJECT</span>
-        <span id="updated">DATEN WERDEN GELADEN …</span>
-      </div>
-    </section>
-
-    <section id="maps" class="section">
-      <div class="section-head">
-        <div>
-          <div class="kicker">01 / BATTLE INTEL</div>
-          <h2>Maps <em>&amp; Locations</em></h2>
-        </div>
-        <button id="refreshMap" class="btn ghost">↻ Aktualisieren</button>
-      </div>
-
-      <div class="tabs">
-        <button class="tab active" data-mode="br">BATTLE ROYALE</button>
-        <button class="tab" data-mode="reload">RELOAD <small>BETA</small></button>
-      </div>
-
-      <div class="panel map-panel">
-        <div class="panel-head">
-          <div>
-            <span class="status"><i></i> <span id="mapStatus">VERBINDUNG WIRD GEPRÜFT</span></span>
-            <h3 id="mapTitle">Battle Royale</h3>
-            <p id="mapSubtitle">Die aktuelle Inselkarte</p>
-          </div>
-          <span class="code" id="mapCode">MAP_001</span>
-        </div>
-
-        <div id="mapFrame" class="map-frame">
-          <div class="loading"><span class="spinner"></span> KARTE WIRD GELADEN</div>
-        </div>
-        <div class="map-foot">
-          <span id="poiCount">KARTENDATEN WERDEN GELADEN</span>
-          <span>Quelle: Fortnite-API</span>
-        </div>
-        <div id="reloadNotice" class="notice hidden">
-          <strong>Reload-Karte nicht verfügbar</strong>
-          <p>Für diese Karte liegt aktuell keine verifizierte Datenquelle vor. Es wird keine Karte erfunden.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="shop" class="section">
-      <div class="section-head">
-        <div>
-          <div class="kicker">02 / DAILY ROTATION</div>
-          <h2>Item-Shop <em>/ Heute</em></h2>
-        </div>
-        <button id="refreshShop" class="btn primary">↻ Shop laden</button>
-      </div>
-
-      <div class="toolbar panel">
-        <div class="count">
-          <strong id="itemCount">—</strong>
-          <span>SHOP-EINTRÄGE</span>
-        </div>
-        <label class="search">
-          <span>⌕</span>
-          <input id="search" type="search" placeholder="Skins suchen …" aria-label="Skins suchen">
-        </label>
-        <select id="sort" aria-label="Sortierung">
-          <option value="default">Standard</option>
-          <option value="name">Name A–Z</option>
-          <option value="price">Preis aufsteigend</option>
-        </select>
-      </div>
-
-      <p id="shopMessage" class="message" role="status">Der Item-Shop wird geladen …</p>
-      <div id="shopGrid" class="grid"></div>
-
-      <p class="footnote">
-        Preise werden nur angezeigt, wenn sie dem einzelnen Item eindeutig zugeordnet werden können.
-        Paketpreise sind keine Einzelpreise.
+  <div class="tracker-card panel">
+    <div class="tracker-icon">✦</div>
+    <div class="tracker-content">
+      <h3>Check deine Stats.</h3>
+      <p>
+        Suche dein Fortnite-Profil auf Tracker Network.
+        Siege, K/D und weitere Werte werden dort angezeigt,
+        sofern dein Profil verfügbar ist.
       </p>
-    </section>
 
-    <aside class="disclaimer">
-      <b>i</b>
-      <p>DROPZONE ist ein unabhängiges Fanprojekt und steht nicht in Verbindung mit Epic Games.
-      Fortnite und zugehörige Marken gehören ihren jeweiligen Rechteinhabern.</p>
-    </aside>
-  </main>
+      <div class="tracker-form">
+        <input
+          id="playerName"
+          type="text"
+          maxlength="64"
+          placeholder="Dein Epic-Name"
+          aria-label="Epic-Spielername"
+        >
 
-  <footer>
-    <a class="brand" href="#top">
-      <span class="mark">D</span>
-      <span>DROP<span class="accent">ZONE</span></span>
+        <select id="playerPlatform" aria-label="Plattform">
+          <option value="epic">Epic Games</option>
+          <option value="psn">PlayStation</option>
+          <option value="xbl">Xbox</option>
+        </select>
+
+        <button id="trackerButton" class="btn primary" type="button">
+          Stats öffnen ↗
+        </button>
+      </div>
+
+      <p id="trackerMessage" class="message" role="status">
+        Die Statistik öffnet sich bei Tracker Network in einem neuen Tab.
+      </p>
+      <a
+        class="external-link"
+        href="https://tracker.gg/fortnite"
+        target="_blank"
+        rel="noopener noreferrer"
+      >Tracker Network direkt öffnen ↗</a>
+    </div>
+  </div>
+</section>
+
+<section id="intel" class="section">
+  <div class="section-head">
+    <div>
+      <div class="kicker">04 / MORE INTEL</div>
+      <h2>Fortnite <em>Hub</em></h2>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <a class="feature-card" href="https://www.fortnite.com/news"
+       target="_blank" rel="noopener noreferrer">
+      <span class="feature-number">01</span>
+      <span class="feature-icon">◈</span>
+      <h3>News & Updates</h3>
+      <p>Offizielle Fortnite-News und Updates.</p>
+      <span class="feature-link">News lesen ↗</span>
     </a>
-    <span>BUILT FOR THE DROP · <span id="year"></span></span>
-    <a href="https://fortnite-api.com/" target="_blank" rel="noreferrer">API-QUELLE ↗</a>
-  </footer>
 
-  <script src="app.js"></script>
-</body>
-</html>
+    <a class="feature-card" href="https://www.fortnite.com/battle-pass"
+       target="_blank" rel="noopener noreferrer">
+      <span class="feature-number">02</span>
+      <span class="feature-icon">✧</span>
+      <h3>Battle Pass</h3>
+      <p>Battle-Pass-Infos und saisonale Inhalte.</p>
+      <span class="feature-link">Mehr entdecken ↗</span>
+    </a>
+
+    <a class="feature-card" href="https://fortnite.gg/"
+       target="_blank" rel="noopener noreferrer">
+      <span class="feature-number">03</span>
+      <span class="feature-icon">⌖</span>
+      <h3>Community Maps</h3>
+      <p>Community-Karten und weitere Fortnite-Tools.</p>
+      <span class="feature-link">Maps erkunden ↗</span>
+    </a>
+
+    <a class="feature-card" href="https://fortnite-api.com/"
+       target="_blank" rel="noopener noreferrer">
+      <span class="feature-number">04</span>
+      <span class="feature-icon">⌘</span>
+      <h3>API Status & Daten</h3>
+      <p>Quelle für Karten, Cosmetics und Shop-Daten.</p>
+      <span class="feature-link">API öffnen ↗</span>
+    </a>
+  </div>
+</section>
+
