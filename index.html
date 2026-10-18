@@ -1,84 +1,147 @@
+
 <!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b0912">
+  <meta name="theme-color" content="#10091c">
   <meta name="description" content="DROPZONE – Fortnite Item-Shop und Maps">
+
   <title>DROPZONE — Fortnite Intel</title>
+
+  <!-- Schriftart -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Deine lila Website-Styles -->
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <header class="topbar">
-    <a class="brand" href="#top">
+  <header class="topbar" id="top">
+    <a class="brand" href="#top" aria-label="DROPZONE Startseite">
       <span class="mark">D</span>
-      <span>DROP<span class="accent">ZONE</span>
+      <span class="brand-text">
+        DROP<span class="accent">ZONE</span>
         <small>FORTNITE INTEL</small>
       </span>
     </a>
-    <nav>
+
+    <nav aria-label="Hauptnavigation">
       <a href="#maps">Maps</a>
       <a href="#shop">Item-Shop</a>
     </nav>
-    <span class="live"><i></i><span id="apiStatus">VERBINDE …</span></span>
+
+    <span class="live">
+      <i></i>
+      <span id="apiStatus">VERBINDE …</span>
+    </span>
   </header>
 
-  <main id="top">
+  <main>
+    <!-- HERO -->
     <section class="hero">
-      <div class="eyebrow"><span class="pulse"></span> DEIN FORTNITE DASHBOARD</div>
-      <h1>DROP IN.<br><span>OWN THE NIGHT.</span></h1>
+      <div class="eyebrow">
+        <span class="pulse"></span>
+        DEIN FORTNITE DASHBOARD
+      </div>
+
+      <h1>
+        DROP IN.<br>
+        <span>OWN THE NIGHT.</span>
+      </h1>
+
       <p>Dein Shop. Deine Map. Dein Dropzone.</p>
+
+      <div class="hero-actions">
+        <a href="#shop" class="btn primary">Item-Shop entdecken ↗</a>
+        <a href="#maps" class="btn ghost">Karte ansehen ↓</a>
+      </div>
+
       <div class="hero-meta">
         <span>COMMUNITY PROJECT</span>
         <span id="updated">DATEN WERDEN GELADEN …</span>
       </div>
     </section>
 
+    <!-- MAPS -->
     <section id="maps" class="section">
       <div class="section-head">
         <div>
           <div class="kicker">01 / BATTLE INTEL</div>
           <h2>Maps <em>&amp; Locations</em></h2>
+          <p class="section-description">
+            Entdecke die aktuelle Insel und ihre Locations.
+          </p>
         </div>
-        <button id="refreshMap" class="btn ghost">↻ Aktualisieren</button>
+
+        <button id="refreshMap" class="btn ghost" type="button">
+          ↻ Aktualisieren
+        </button>
       </div>
 
       <div class="tabs">
-        <button class="tab active" data-mode="br">BATTLE ROYALE</button>
-        <button class="tab" data-mode="reload">RELOAD <small>BETA</small></button>
+        <button class="tab active" data-mode="br" type="button">
+          BATTLE ROYALE
+        </button>
+
+        <button class="tab" data-mode="reload" type="button">
+          RELOAD <small>BETA</small>
+        </button>
       </div>
 
       <div class="panel map-panel">
         <div class="panel-head">
           <div>
-            <span class="status"><i></i> <span id="mapStatus">VERBINDUNG WIRD GEPRÜFT</span></span>
+            <span class="status">
+              <i></i>
+              <span id="mapStatus">VERBINDUNG WIRD GEPRÜFT</span>
+            </span>
+
             <h3 id="mapTitle">Battle Royale</h3>
             <p id="mapSubtitle">Die aktuelle Inselkarte</p>
           </div>
+
           <span class="code" id="mapCode">MAP_001</span>
         </div>
 
         <div id="mapFrame" class="map-frame">
-          <div class="loading"><span class="spinner"></span> KARTE WIRD GELADEN</div>
+          <div class="loading">
+            <span class="spinner"></span>
+            KARTE WIRD GELADEN
+          </div>
         </div>
+
         <div class="map-foot">
           <span id="poiCount">KARTENDATEN WERDEN GELADEN</span>
           <span>Quelle: Fortnite-API</span>
         </div>
+
         <div id="reloadNotice" class="notice hidden">
           <strong>Reload-Karte nicht verfügbar</strong>
-          <p>Für diese Karte liegt aktuell keine verifizierte Datenquelle vor. Es wird keine Karte erfunden.</p>
+          <p>
+            Für diese Karte liegt aktuell keine verifizierte Datenquelle vor.
+            Es wird keine Karte erfunden.
+          </p>
         </div>
       </div>
     </section>
 
+    <!-- ITEM SHOP -->
     <section id="shop" class="section">
       <div class="section-head">
         <div>
           <div class="kicker">02 / DAILY ROTATION</div>
           <h2>Item-Shop <em>/ Heute</em></h2>
+          <p class="section-description">
+            Finde deine nächsten Lieblingsskins.
+          </p>
         </div>
-        <button id="refreshShop" class="btn primary">↻ Shop laden</button>
+
+        <button id="refreshShop" class="btn primary" type="button">
+          ↻ Shop laden
+        </button>
       </div>
 
       <div class="toolbar panel">
@@ -86,10 +149,17 @@
           <strong id="itemCount">—</strong>
           <span>SHOP-EINTRÄGE</span>
         </div>
+
         <label class="search">
-          <span>⌕</span>
-          <input id="search" type="search" placeholder="Skins suchen …" aria-label="Skins suchen">
+          <span aria-hidden="true">⌕</span>
+          <input
+            id="search"
+            type="search"
+            placeholder="Skins suchen …"
+            aria-label="Skins suchen"
+          >
         </label>
+
         <select id="sort" aria-label="Sortierung">
           <option value="default">Standard</option>
           <option value="name">Name A–Z</option>
@@ -97,31 +167,48 @@
         </select>
       </div>
 
-      <p id="shopMessage" class="message" role="status">Der Item-Shop wird geladen …</p>
+      <p id="shopMessage" class="message" role="status">
+        Der Item-Shop wird geladen …
+      </p>
+
       <div id="shopGrid" class="grid"></div>
 
       <p class="footnote">
-        Preise werden nur angezeigt, wenn sie dem einzelnen Item eindeutig zugeordnet werden können.
-        Paketpreise sind keine Einzelpreise.
+        Preise werden nur angezeigt, wenn sie dem einzelnen Item
+        eindeutig zugeordnet werden können. Paketpreise sind keine Einzelpreise.
       </p>
     </section>
 
+    <!-- HINWEIS -->
     <aside class="disclaimer">
-      <b>i</b>
-      <p>DROPZONE ist ein unabhängiges Fanprojekt und steht nicht in Verbindung mit Epic Games.
-      Fortnite und zugehörige Marken gehören ihren jeweiligen Rechteinhabern.</p>
+      <b aria-hidden="true">i</b>
+      <p>
+        DROPZONE ist ein unabhängiges Fanprojekt und steht nicht in Verbindung
+        mit Epic Games. Fortnite und zugehörige Marken gehören ihren jeweiligen
+        Rechteinhabern.
+      </p>
     </aside>
   </main>
 
+  <!-- FOOTER -->
   <footer>
     <a class="brand" href="#top">
       <span class="mark">D</span>
       <span>DROP<span class="accent">ZONE</span></span>
     </a>
+
     <span>BUILT FOR THE DROP · <span id="year"></span></span>
-    <a href="https://fortnite-api.com/" target="_blank" rel="noreferrer">API-QUELLE ↗</a>
+
+    <a
+      href="https://fortnite-api.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      API-QUELLE ↗
+    </a>
   </footer>
 
+  <!-- Deine Website-Logik -->
   <script src="app.js"></script>
 </body>
 </html>
