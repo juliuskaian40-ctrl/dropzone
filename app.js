@@ -1,256 +1,258 @@
+
 "use strict";
 
 const API_URL = "https://fortnite-api.com/v2/shop?language=de";
+const API_KEY = "613bf376-b744-4781-917f-707018a83c9a";
 
-const grid = document.getElementById("shopGrid");
-const statusBox = document.getElementById("shopStatus");
-const searchInput = document.getElementById("shopSearch");
-const refreshButton = document.getElementById("refreshShop");
-const countLabel = document.getElementById("itemCount");
+const shopGrid = document.getElementById("shop-grid");
+const searchInput = document.getElementById("search-input");
+const shopStatus = document.getElementById("shop-status");
+const shopCount = document.getElementById("shop-count");
+const emptyState = document.getElementById("empty-state");
+const refreshButton = document.getElementById("refresh-button");
 
-let items = [];
+let allItems = [];
 
-function textValue(...values) {
-  return values.find(value =>
-    typeof value === "string" && value.trim()
-  ) || "";
+function setStatus(message, online = false) {
+  if (!shopStatus) return;
+
+  shopStatus.replaceChildren();
+
+  const dot = document.createElement("span");
+  dot.className = "status-dot";
+
+  if (!online) {
+    dot.style.background = "#a100ff";
+  }
+
+  shopStatus.append(dot, document.createTextNode(message));
 }
 
-function getImage(item, entry) {
+function getShopEntries(data) {
+  const entries = data?.data?.entries;
+  return Array.isArray(entries) ? entries : [];
+}
+
+function getItemName(item) {
+  return item?.name
+    || item?.title
+    || item?.brItems?.[0]?.name
+    || item?.tracks?.[0]?.title
+    || "Unbekanntes Item";
+}
+
+function getItemImage(item) {
   const candidates = [
-    item?.images?.featured,
-    item?.images?.icon,
-    item?.images?.other,
-    item?.images?.smallIcon,
-    item?.displayAssets?.[0]?.url,
-    item?.displayAssets?.[0]?.image,
     item?.newDisplayAsset?.renderImages?.[0]?.image,
-    item?.newDisplayAsset?.renderImages?.[0]?.url,
-    entry?.bundle?.image,
-    entry?.displayAssets?.[0]?.url,
-    entry?.displayAssets?.[0]?.image,
-    entry?.newDisplayAsset?.renderImages?.[0]?.image
+    item?.newDisplayAsset?.materialInstances?.[0]?.images?.OfferImage,
+    item?.brItems?.[0]?.images?.featured,
+    item?.brItems?.[0]?.images?.icon,
+    item?.tracks?.[0]?.albumArt,
+    item?.images?.icon
   ];
 
   return candidates.find(value =>
-    typeof value === "string" && /^https?:\/\//i.test(value)
+    typeof value === "string" && value.startsWith("https://")
   ) || "";
 }
 
-function getEntries(data) {
-  if (Array.isArray(data?.entries)) return data.entries;
+function getItemPrice(item) {
+  const price =
+    item?.finalPrice ??
+    item?.regularPrice ??
+    item?.brItems?.[0]?.price ??
+    0;
 
-  const sections = [
-    data?.featured?.entries,
-    data?.daily?.entries,
-    data?.specialFeatured?.entries,
-    data?.specialDaily?.entries,
-    data?.collaborations?.entries
-  ];
-
-  return sections.flatMap(section =>
-    Array.isArray(section) ? section : []
-  );
+  return Number.isFinite(Number(price)) ? Number(price) : 0;
 }
 
-function parseItems(json) {
-  const result = [];
-
-  for (const entry of getEntries(json?.data)) {
-    const listedItems = Array.isArray(entry?.br) && entry.br.length
-      ? entry.br
-      : Array.isArray(entry?.items) && entry.items.length
-        ? entry.items
-        : [entry];
-
-    for (const item of listedItems) {
-      const name = textValue(
-        item?.name,
-        item?.displayName,
-        entry?.bundle?.name,
-        entry?.name,
-        entry?.devName
-      );
-
-      const image = getImage(item, entry);
-      if (!name || !image) continue;
-
-      const rarity = textValue(
-        item?.rarity?.displayValue,
-        item?.series?.name,
-        item?.rarity?.value,
-        item?.type?.displayValue
-      ) || "Fortnite";
-
-      const type = textValue(
-        item?.type?.displayValue,
-        item?.type?.value,
-        entry?.section?.name,
-        entry?.layout?.name
-      ) || "Item Shop";
-
-      let price = null;
-
-      if (Number.isFinite(entry?.finalPrice)) {
-        price = entry.finalPrice;
-      } else if (Number.isFinite(entry?.price?.finalPrice)) {
-        price = entry.price.finalPrice;
-      } else if (Number.isFinite(entry?.regularPrice)) {
-        price = entry.regularPrice;
-      }
-
-      result.push({
-        id: item?.id || `${name}-${image}`,
-        name,
-        image,
-        rarity,
-        type,
-        price
-      });
-    }
-  }
-
-  const seen = new Set();
-
-  return result.filter(item => {
-    const key = `${item.name}|${item.image}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+function getItemType(item) {
+  return item?.layout?.name
+    || item?.brItems?.[0]?.type?.displayValue
+    || item?.tracks?.[0]?.type
+    || item?.bundle?.name
+    || "Fortnite Item";
 }
 
-function createElement(tag, className, content) {
-  const element = document.createElement(tag);
-  if (className) element.className = className;
-  if (content !== undefined) element.textContent = content;
-  return element;
-}
+function createItemCard(item) {
+  const card = document.createElement("article");
+  card.className = "item-card";
 
-function showStatus(message, loading = false) {
-  statusBox.classList.remove("hidden");
-  statusBox.replaceChildren();
-
-  if (loading) {
-    statusBox.append(createElement("span", "spinner"));
-  }
-
-  statusBox.append(createElement("span", "", message));
-}
-
-function renderItems() {
-  const query = searchInput.value.trim().toLowerCase();
-
-  const filtered = items.filter(item =>
-    item.name.toLowerCase().includes(query) ||
-    item.rarity.toLowerCase().includes(query) ||
-    item.type.toLowerCase().includes(query)
-  );
-
-  grid.replaceChildren();
-  countLabel.textContent = `${filtered.length} ITEMS`;
-
-  if (!filtered.length) {
-    showStatus(items.length
-      ? "Keine passenden Items gefunden."
-      : "Keine Shop-Items mit Bildern gefunden. Bitte API-Antwort prüfen.");
-    return;
-  }
-
-  statusBox.classList.add("hidden");
-  const fragment = document.createDocumentFragment();
-
-  for (const item of filtered) {
-    const card = createElement("article", "shop-card");
-    const imageArea = createElement("div", "shop-card-image");
+  const imageUrl = getItemImage(item);
+  if (imageUrl) {
     const image = document.createElement("img");
-
-    image.src = item.image;
-    image.alt = item.name;
+    image.src = imageUrl;
+    image.alt = getItemName(item);
     image.loading = "lazy";
     image.decoding = "async";
 
     image.addEventListener("error", () => {
-      image.remove();
-      imageArea.append(
-        createElement("span", "image-fallback", "Bild nicht verfügbar")
-      );
-    }, { once: true });
+      image.style.display = "none";
+    });
 
-    imageArea.append(
-      image,
-      createElement("span", "shop-rarity", item.rarity)
-    );
-
-    const details = createElement("div", "shop-card-details");
-    details.append(
-      createElement("h3", "", item.name),
-      createElement("p", "item-type", item.type)
-    );
-
-    if (item.price !== null) {
-      const price = createElement("div", "shop-price");
-      price.append(
-        createElement("span", "vbuck-symbol", "V"),
-        document.createTextNode(
-          `${item.price.toLocaleString("de-DE")} V-Bucks`
-        )
-      );
-      details.append(price);
-    }
-
-    card.append(imageArea, details);
-    fragment.append(card);
+    card.appendChild(image);
   }
 
-  grid.append(fragment);
+  const content = document.createElement("div");
+  content.className = "item-card-content";
+
+  const rarity = document.createElement("div");
+  rarity.className = "item-rarity";
+  rarity.textContent = getItemType(item);
+
+  const name = document.createElement("h3");
+  name.textContent = getItemName(item);
+
+  const description = document.createElement("p");
+  description.textContent = "FORTNITE ITEM";
+
+  const price = document.createElement("div");
+  price.className = "item-price";
+
+  const priceLabel = document.createElement("span");
+  priceLabel.textContent = "V-BUCKS";
+
+  const priceValue = document.createElement("strong");
+  const amount = getItemPrice(item);
+  priceValue.textContent = amount > 0
+    ? amount.toLocaleString("de-DE")
+    : "—";
+
+  price.append(priceLabel, priceValue);
+  content.append(rarity, name, description, price);
+  card.appendChild(content);
+
+  return card;
+}
+
+function renderItems(items) {
+  if (!shopGrid) return;
+
+  shopGrid.replaceChildren();
+
+  if (shopCount) {
+    const count = document.createElement("span");
+    count.textContent = String(items.length);
+    shopCount.replaceChildren(
+      document.createTextNode("ITEMS "),
+      count
+    );
+  }
+
+  if (emptyState) {
+    emptyState.hidden = items.length !== 0;
+  }
+
+  if (items.length === 0) {
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  for (const item of items) {
+    fragment.appendChild(createItemCard(item));
+  }
+
+  shopGrid.appendChild(fragment);
+}
+
+function filterItems() {
+  const query = (searchInput?.value || "").trim().toLocaleLowerCase("de");
+
+  const filtered = allItems.filter(item => {
+    const name = getItemName(item).toLocaleLowerCase("de");
+    const type = getItemType(item).toLocaleLowerCase("de");
+
+    return name.includes(query) || type.includes(query);
+  });
+
+  renderItems(filtered);
 }
 
 async function loadShop() {
-  refreshButton.disabled = true;
-  showStatus("Item-Shop wird geladen ...", true);
-  countLabel.textContent = "LÄDT ...";
+  if (!shopGrid) return;
+
+  if (refreshButton) {
+    refreshButton.disabled = true;
+    refreshButton.style.opacity = "0.65";
+  }
+
+  shopGrid.replaceChildren();
+
+  const loading = document.createElement("div");
+  loading.className = "loading-panel";
+
+  const ring = document.createElement("div");
+  ring.className = "loading-ring";
+
+  const title = document.createElement("p");
+  title.textContent = "LOOT WIRD GELADEN";
+
+  const subtitle = document.createElement("span");
+  subtitle.textContent = "BITTE WARTEN...";
+
+  loading.append(ring, title, subtitle);
+  shopGrid.appendChild(loading);
+
+  setStatus("VERBINDE MIT DER ZONE...");
 
   try {
     const response = await fetch(API_URL, {
-      headers: { Accept: "application/json" },
+      headers: {
+        "Accept": "application/json",
+        "x-api-key": API_KEY
+      },
       cache: "no-store"
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      throw new Error(`API antwortet mit HTTP ${response.status}`);
     }
 
-    const json = await response.json();
+    const result = await response.json();
+    const entries = getShopEntries(result);
 
-    if (json?.status && json.status !== 200) {
-      throw new Error(json.error || "API-Fehler");
+    if (!entries.length) {
+      throw new Error("Die API hat keine Shop-Items zurückgegeben.");
     }
 
-    items = parseItems(json);
-
-    if (!items.length) {
-      countLabel.textContent = "0 ITEMS";
-      showStatus(
-        "Die API lieferte keine verwendbaren Shop-Bilder. Öffne F12 → Console für Details."
-      );
-      console.warn("Shop-Antwort:", json);
-      return;
-    }
-
-    renderItems();
+    allItems = entries;
+    filterItems();
+    setStatus("ZONE ONLINE // SHOP ERFOLGREICH GELADEN", true);
   } catch (error) {
-    console.error("DROPZONE Shop-Fehler:", error);
-    countLabel.textContent = "FEHLER";
-    showStatus(
-      "Shop konnte nicht geladen werden. Mögliche Ursachen: API nicht erreichbar, Zugriff verweigert oder Anfrage blockiert."
-    );
+    console.error("Dropzone Shop Fehler:", error);
+
+    shopGrid.replaceChildren();
+
+    const errorPanel = document.createElement("div");
+    errorPanel.className = "loading-panel";
+
+    const errorTitle = document.createElement("p");
+    errorTitle.textContent = "VERBINDUNG FEHLGESCHLAGEN";
+
+    const errorMessage = document.createElement("span");
+    errorMessage.textContent =
+      "API nicht erreichbar. Bitte später erneut versuchen.";
+
+    errorPanel.append(errorTitle, errorMessage);
+    shopGrid.appendChild(errorPanel);
+
+    setStatus("ZONE OFFLINE // API-FEHLER");
+    if (shopCount) shopCount.textContent = "ITEMS —";
   } finally {
-    refreshButton.disabled = false;
+    if (refreshButton) {
+      refreshButton.disabled = false;
+      refreshButton.style.opacity = "1";
+    }
   }
 }
 
-searchInput.addEventListener("input", renderItems);
-refreshButton.addEventListener("click", loadShop);
+if (searchInput) {
+  searchInput.addEventListener("input", filterItems);
+}
+
+if (refreshButton) {
+  refreshButton.addEventListener("click", loadShop);
+}
 
 loadShop();
