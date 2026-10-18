@@ -36,3 +36,24 @@ export async function onRequest(context) {
     );
   }
 }
+/* Begrenzt die Größe aller Bilder im Shop, damit sie sauber dargestellt werden */
+.shop-item img, 
+.shop-container img, 
+#shop img {
+  width: 100% !important;
+  max-width: 150px !important; /* Passe diesen Wert an, wenn sie noch kleiner/größer sein sollen */
+  height: auto !important;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Optional: Falls die einzelnen Shop-Karten (Container) zu klein sind */
+.shop-item, 
+.shop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
