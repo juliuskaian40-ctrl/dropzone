@@ -1,106 +1,118 @@
 
-<!-- DROPZONE: Fortnite Maps -->
-<section class="dz-extra-section" id="fortniteMaps">
-  <div class="dz-section-heading">
-    <div>
-      <span class="dz-eyebrow">EXPLORE THE ISLAND</span>
-      <h2>FORTNITE MAPS</h2>
-      <p>Entdecke die aktuellen Karten und Points of Interest.</p>
-    </div>
-    <button class="dz-action-btn" id="refreshMaps" type="button">
-      Karte aktualisieren
-    </button>
-  </div>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10110f">
+  <title>DROPZONE — Fortnite Intel</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="#" class="logo"><span>DROP</span>ZONE<span class="logo-dot">.</span></a>
+    <nav>
+      <a href="#maps">Maps</a>
+      <a href="#shop">Item Shop</a>
+      <a href="#modes">Modes</a>
+      <a href="#news">News</a>
+    </nav>
+    <span class="status"><i></i> API CONNECTED</span>
+  </header>
 
-  <div class="dz-map-grid">
-    <article class="dz-map-card">
-      <div class="dz-map-title">
-        <div>
-          <span class="dz-map-tag">BATTLE ROYALE</span>
-          <h3>Battle Royale Map</h3>
-        </div>
-        <span class="dz-live-dot">LIVE DATA</span>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">YOUR FORTNITE INTELLIGENCE HUB</div>
+      <h1>DROP INTO<br><span>THE ACTION.</span></h1>
+      <p>Maps, cosmetics, item shop and live Fortnite information in one place.</p>
+      <a class="primary-btn" href="#maps">EXPLORE THE ISLAND ↘</a>
+    </section>
+
+    <section id="maps" class="section">
+      <div class="section-heading">
+        <div><div class="eyebrow">01 / THE ISLAND</div><h2>MAPS<span>.</span></h2></div>
+        <button id="refreshBtn" class="outline-btn">↻ Refresh data</button>
       </div>
 
-      <div class="dz-map-image-wrap">
-        <img id="brMapImage" alt="Aktuelle Fortnite Battle Royale Karte"
-             loading="lazy">
-        <div class="dz-map-loading" id="brMapStatus">
-          Battle-Royale-Karte wird geladen ...
-        </div>
+      <div class="map-grid">
+        <article class="panel map-panel">
+          <div class="panel-heading">
+            <div><span class="tag green">BATTLE ROYALE</span><h3>Current Island</h3></div>
+            <span class="live">LIVE DATA</span>
+          </div>
+          <div class="map-stage">
+            <img id="brMap" alt="Fortnite Battle Royale map" hidden>
+            <div id="brMapStatus" class="placeholder">Loading Battle Royale map...</div>
+          </div>
+          <div class="panel-footer">
+            <span id="brMapVersion">CURRENT MAP</span>
+            <a id="openBrMap" href="https://fortnite-api.com/" target="_blank" rel="noopener">Open map ↗</a>
+          </div>
+          <div id="poiList" class="poi-list"></div>
+        </article>
+
+        <article class="panel map-panel">
+          <div class="panel-heading">
+            <div><span class="tag blue">RELOAD</span><h3>Reload Island</h3></div>
+            <span class="live blue-text">RELOAD</span>
+          </div>
+          <div class="map-stage reload-stage">
+            <img id="reloadMap" alt="Fortnite Reload map" hidden>
+            <div id="reloadStatus" class="placeholder">
+              Reload map image not configured yet.
+            </div>
+          </div>
+          <div class="panel-footer">
+            <span>RELOAD MODE</span>
+            <a href="https://www.fortnite.com/" target="_blank" rel="noopener">Fortnite ↗</a>
+          </div>
+          <p class="small-note">A separate verified Reload map image URL is needed for this panel.</p>
+        </article>
       </div>
+    </section>
 
-      <div class="dz-map-footer">
-        <span id="brMapInfo">Aktuelle Karte</span>
-        <a id="brMapOpen" href="https://fortnite-api.com/"
-           target="_blank" rel="noopener noreferrer">
-          Karte öffnen ↗
-        </a>
+    <section id="shop" class="section">
+      <div class="section-heading">
+        <div><div class="eyebrow">02 / DAILY ROTATION</div><h2>ITEM SHOP<span>.</span></h2></div>
+        <span id="shopUpdated" class="muted">Fetching data...</span>
       </div>
-
-      <div class="dz-poi-list" id="brPoiList"></div>
-    </article>
-
-    <article class="dz-map-card">
-      <div class="dz-map-title">
-        <div>
-          <span class="dz-map-tag dz-map-tag-reload">RELOAD</span>
-          <h3>Reload Map</h3>
-        </div>
-        <span class="dz-live-dot dz-reload-dot">MAP</span>
+      <div id="shopGrid" class="shop-grid">
+        <div class="placeholder">Loading shop...</div>
       </div>
+    </section>
 
-      <div class="dz-map-image-wrap">
-        <img id="reloadMapImage" alt="Fortnite Reload Karte"
-             loading="lazy" hidden>
-        <div class="dz-map-loading" id="reloadMapStatus">
-          Reload-Karte benötigt eine passende Kartenbild-URL.
-        </div>
+    <section id="modes" class="section">
+      <div class="section-heading">
+        <div><div class="eyebrow">03 / GAMEPLAY</div><h2>GAME MODES<span>.</span></h2></div>
       </div>
-
-      <div class="dz-map-footer">
-        <span>Reload-Modus</span>
-        <a href="https://www.fortnite.com/"
-           target="_blank" rel="noopener noreferrer">
-          Fortnite öffnen ↗
-        </a>
+      <div id="modeGrid" class="mode-grid">
+        <div class="placeholder">Loading playlists...</div>
       </div>
+    </section>
 
-      <p class="dz-map-note">
-        Die Reload-Karte wird separat konfiguriert, weil der verwendete
-        API-Endpunkt nicht automatisch eine eigene Reload-Karte garantiert.
-      </p>
-    </article>
-  </div>
-</section>
-
-<!-- DROPZONE: Additional Fortnite data -->
-<section class="dz-extra-section" id="fortniteData">
-  <div class="dz-section-heading">
-    <div>
-      <span class="dz-eyebrow">MORE FROM THE ISLAND</span>
-      <h2>FORTNITE INTEL</h2>
-      <p>Playlists, aktuelle Cosmetics und weitere Spieldaten.</p>
-    </div>
-  </div>
-
-  <div class="dz-intel-grid">
-    <article class="dz-intel-card">
-      <span class="dz-map-tag">GAME MODES</span>
-      <h3>Playlists</h3>
-      <p>Verfügbare Spielmodi aus der Fortnite-API.</p>
-      <div id="dzPlaylists" class="dz-data-list">
-        Daten werden geladen ...
+    <section id="cosmetics" class="section">
+      <div class="section-heading">
+        <div><div class="eyebrow">04 / COLLECTION</div><h2>NEW COSMETICS<span>.</span></h2></div>
       </div>
-    </article>
-
-    <article class="dz-intel-card">
-      <span class="dz-map-tag">COSMETICS</span>
-      <h3>Neue Cosmetics</h3>
-      <p>Zuletzt hinzugefügte kosmetische Items.</p>
-      <div id="dzNewCosmetics" class="dz-data-list">
-        Daten werden geladen ...
+      <div id="cosmeticGrid" class="cosmetic-grid">
+        <div class="placeholder">Loading cosmetics...</div>
       </div>
-    </article>
-  </div>
-</section>
+    </section>
+
+    <section id="news" class="section">
+      <div class="section-heading">
+        <div><div class="eyebrow">05 / INTEL FEED</div><h2>FORTNITE NEWS<span>.</span></h2></div>
+      </div>
+      <div id="newsGrid" class="news-grid">
+        <div class="placeholder">Loading news...</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a href="#" class="logo"><span>DROP</span>ZONE<span class="logo-dot">.</span></a>
+    <p>Fan-made Fortnite dashboard. Not affiliated with Epic Games.</p>
+  </footer>
+</body>
+</html>
