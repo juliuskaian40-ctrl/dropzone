@@ -1,7 +1,7 @@
+
 "use strict";
 
 const API_URL = "https://fortnite-api.com/v2/shop?language=de";
-const API_KEY = "613bf376-b744-4781-917f-707018a83c9a";
 
 const grid = document.getElementById("shopGrid");
 const statusBox = document.getElementById("shopStatus");
@@ -214,10 +214,7 @@ async function loadShop() {
 
   try {
     const response = await fetch(API_URL, {
-      headers: {
-        Accept: "application/json",
-        "x-api-key": API_KEY
-      },
+      headers: { Accept: "application/json" },
       cache: "no-store"
     });
 
