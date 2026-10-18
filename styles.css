@@ -1,895 +1,266 @@
-css
+
+/* DROPZONE — Dashboard Erweiterung */
 
 :root {
-  color-scheme: dark;
-  --bg: #0b0912;
-  --surface: #12101d;
-  --surface-2: #191526;
-  --border: #302642;
-  --text: #f7f3ff;
-  --muted: #a39ab8;
-  --purple: #a855f7;
-  --pink: #e879f9;
-  --glow: rgba(168, 85, 247, .22);
+  --accent-blue: #60a5fa;
+  --panel-glass: rgba(25, 21, 38, .82);
 }
-
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 90px; }
-
-body {
-  margin: 0;
-  background:
-    radial-gradient(ellipse at 50% 0%, #211035 0, transparent 42%),
-    var(--bg);
-  color: var(--text);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
-  line-height: 1.55;
-}
-
-a { color: inherit; text-decoration: none; }
-button, input, select { font: inherit; }
-button, select { cursor: pointer; }
 
 .topbar {
-  min-height: 76px;
-  padding: 15px max(5%, calc((100% - 1200px) / 2));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(11, 9, 18, .88);
-  backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  font-weight: 900;
-  letter-spacing: .5px;
-  line-height: 1.15;
+nav a {
+  transition: color .2s ease, transform .2s ease;
 }
 
-.brand small {
-  display: block;
-  margin-top: 5px;
-  font-size: 9px;
-  letter-spacing: 2.5px;
-  color: var(--muted);
-}
-
-.mark {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 13px;
-  background: linear-gradient(140deg, var(--purple), #6d28d9);
-  box-shadow: 0 0 25px var(--glow);
-  font-size: 23px;
-  color: white;
-}
-
-.accent, h1 span { color: var(--pink); }
-
-nav { display: flex; gap: 27px; }
-nav a, footer a:last-child {
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
-  transition: color .2s;
-}
-nav a:hover, footer a:hover { color: var(--pink); }
-
-.live, .status {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1px;
-}
-
-.live i, .status i, .pulse {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #c084fc;
-  box-shadow: 0 0 12px #c084fc;
-}
-
-main {
-  width: min(1120px, 90%);
-  margin: auto;
+nav a:hover {
+  transform: translateY(-1px);
 }
 
 .hero {
-  padding: 95px 0 70px;
-  border-bottom: 1px solid var(--border);
+  position: relative;
+  isolation: isolate;
 }
 
-.eyebrow, .kicker {
-  color: #c084fc;
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 2px;
-}
-
-.eyebrow { display: flex; align-items: center; gap: 10px; }
-.pulse { animation: pulse 1.8s infinite; }
-
-h1 {
-  margin: 22px 0 16px;
-  font-size: clamp(44px, 8vw, 86px);
-  line-height: .99;
-  letter-spacing: -4px;
-  font-weight: 950;
-}
-
-h1 span { text-shadow: 0 0 35px var(--glow); }
-.hero > p { color: var(--muted); font-size: 17px; }
-
-.hero-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-top: 34px;
-  color: #8e829f;
-  font-size: 10px;
-  font-weight: 750;
-  letter-spacing: 1px;
-}
-
-.section { padding: 66px 0 10px; }
-
-.section-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 18px;
-  margin-bottom: 25px;
-}
-
-h2 {
-  margin: 7px 0 0;
-  font-size: clamp(27px, 4vw, 38px);
-  letter-spacing: -1.3px;
-}
-
-h2 em { color: var(--muted); font-style: normal; font-weight: 450; }
-h3 { margin: 9px 0 3px; font-size: 22px; }
-p { margin-top: 8px; }
-
-.btn {
-  border: 1px solid var(--border);
-  border-radius: 11px;
-  padding: 11px 16px;
-  color: white;
-  font-size: 12px;
-  font-weight: 800;
-  transition: .2s;
-}
-
-.btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  border-color: var(--purple);
-  box-shadow: 0 0 22px var(--glow);
-}
-
-.btn:disabled { opacity: .5; cursor: wait; }
-.btn.primary {
-  background: linear-gradient(120deg, #9333ea, #6d28d9);
-  border-color: #a855f7;
-}
-.btn.ghost { background: var(--surface); }
-
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tab {
-  padding: 12px 17px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: .6px;
-}
-
-.tab.active {
-  color: white;
-  background: #29173e;
-  border-color: var(--purple);
-  box-shadow: inset 0 -2px var(--pink), 0 0 18px var(--glow);
-}
-
-.tab small { color: var(--pink); }
-
-.panel {
-  background: linear-gradient(145deg, rgba(25, 21, 38, .97), rgba(16, 13, 24, .97));
-  border: 1px solid var(--border);
-  border-radius: 17px;
-}
-
-.map-panel { overflow: hidden; }
-
-.panel-head {
-  padding: 23px 25px;
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 15px;
-}
-
-.panel-head p { color: var(--muted); margin-bottom: 0; font-size: 13px; }
-.code { color: #8c76a9; font-size: 10px; letter-spacing: 1px; }
-
-.map-frame {
-  min-height: 260px;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(ellipse at center, rgba(109, 40, 217, .13), transparent 65%),
-    #0c0a12;
-  border-block: 1px solid var(--border);
-  overflow: hidden;
-}
-
-.map-frame img {
-  display: block;
-  width: 100%;
-  max-height: 650px;
-  object-fit: contain;
-}
-
-.loading {
-  padding: 40px 20px;
-  color: var(--muted);
-  text-align: center;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
-}
-
-.spinner {
-  width: 23px;
-  height: 23px;
-  display: block;
-  margin: 0 auto 14px;
-  border: 2px solid #49345f;
-  border-top-color: var(--pink);
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 45px;
+  right: 0;
+  width: min(40%, 340px);
+  aspect-ratio: 1;
   border-radius: 50%;
-  animation: spin .8s linear infinite;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, .18),
+    transparent 68%
+  );
+  pointer-events: none;
 }
 
-.map-foot {
-  padding: 14px 24px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: .6px;
-}
-
-.notice {
-  padding: 22px 25px;
-  background: #1c1328;
-  border-top: 1px solid var(--border);
-}
-.notice strong { color: var(--pink); }
-.notice p { color: var(--muted); margin-bottom: 0; font-size: 13px; }
-.hidden { display: none !important; }
-
-.toolbar {
-  padding: 17px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.count { min-width: 100px; }
-.count strong { display: block; font-size: 26px; color: var(--pink); }
-.count span { display: block; color: var(--muted); font-size: 9px; letter-spacing: 1px; }
-
-.search {
-  min-width: 100px;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 13px;
-  background: #0c0a12;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--pink);
-}
-
-.search:focus-within { border-color: var(--purple); }
-.search input { width: 100%; min-width: 0; padding: 12px 0; background: transparent; border: 0; outline: 0; color: white; }
-.search input::placeholder { color: #786d89; }
-
-select {
-  max-width: 180px;
-  padding: 12px;
-  color: white;
-  background: #0c0a12;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 17px;
+.panel,
+.feature-card,
+.tracker-card {
+  backdrop-filter: blur(12px);
 }
 
 .item {
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 15px;
-  background: var(--surface);
-  transition: transform .2s, border-color .2s, box-shadow .2s;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .12);
 }
 
+.item:focus-within,
 .item:hover {
-  transform: translateY(-4px);
-  border-color: #9652d4;
-  box-shadow: 0 10px 32px rgba(126, 34, 206, .12);
+  border-color: var(--purple);
+  box-shadow: 0 12px 35px rgba(168, 85, 247, .16);
 }
 
-.art {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: radial-gradient(ellipse at 50% 70%, #352047, #15111f 70%);
-}
-
-.art img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 10px;
-  transition: transform .3s;
-}
-.item:hover .art img { transform: scale(1.05); }
-
-.type {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  max-width: calc(100% - 20px);
-  padding: 5px 8px;
-  border: 1px solid #ffffff1b;
-  border-radius: 6px;
-  background: #0b0912cc;
-  color: #e7ddf5;
-  font-size: 9px;
-  font-weight: 750;
-}
-
-.info { padding: 14px; }
-.name { min-height: 42px; font-size: 13px; font-weight: 800; overflow-wrap: anywhere; }
-
-.item-bottom {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 13px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
-
-.rarity-label { font-size: 9px; text-transform: uppercase; font-weight: 850; letter-spacing: .5px; }
-.price { text-align: right; font-size: 12px; font-weight: 900; white-space: nowrap; }
-.price.unknown { color: var(--muted); font-size: 10px; white-space: normal; }
-.coin {
-  display: inline-grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
-  border-radius: 50%;
-  background: #7dd3fc;
-  color: #092034;
-  font-size: 10px;
-}
-
-.message { color: var(--muted); font-size: 13px; }
-.message.error { color: #fda4af; }
-.footnote { color: #8e829f; font-size: 11px; line-height: 1.7; margin: 20px 0; }
-
-.disclaimer {
-  display: flex;
-  align-items: start;
-  gap: 13px;
-  margin: 65px 0 40px;
-  padding: 18px;
-  border: 1px solid var(--border);
-  border-radius: 13px;
-  background: #100d18;
-}
-
-.disclaimer b {
-  display: grid;
-  place-items: center;
-  width: 23px;
-  height: 23px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: #352047;
-  color: var(--pink);
-}
-
-.disclaimer p { margin: 0; color: var(--muted); font-size: 11px; }
-
-footer {
-  min-height: 85px;
-  padding: 20px 5%;
-  display: flex;
+.tracker-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  border-top: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 10px;
+  padding: 8px 11px;
+  border: 1px solid rgba(96, 165, 250, .3);
+  border-radius: 999px;
+  background: rgba(96, 165, 250, .08);
+  color: var(--accent-blue);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 1px;
 }
 
-footer .mark { width: 32px; height: 32px; font-size: 17px; border-radius: 9px; }
+.tracker-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  padding: clamp(20px, 4vw, 36px);
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(168, 85, 247, .16), transparent 65%),
+    var(--panel-glass);
+}
 
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pulse { 50% { opacity: .4; } }
+.tracker-icon {
+  flex: 0 0 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #a855f766;
+  border-radius: 17px;
+  background: #a855f71a;
+  color: var(--pink);
+  font-size: 28px;
+}
 
-@media (max-width: 850px) {
-  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .topbar { padding-inline: 5%; }
+.tracker-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.tracker-content h3 {
+  margin-top: 0;
+}
+
+.tracker-content > p {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.tracker-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.tracker-form input,
+.tracker-form select {
+  min-width: 0;
+  min-height: 44px;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  background: #0c0a12;
+  color: var(--text);
+}
+
+.tracker-form input {
+  flex: 1 1 190px;
+}
+
+.tracker-form select {
+  flex: 0 1 150px;
+}
+
+.tracker-form input:focus,
+.tracker-form select:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, .12);
+}
+
+.external-link,
+.feature-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--pink);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.feature-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 230px;
+  padding: 23px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background:
+    linear-gradient(145deg, rgba(35, 25, 52, .9), rgba(16, 13, 24, .96));
+  transition:
+    transform .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--purple);
+  box-shadow: 0 15px 35px rgba(126, 34, 206, .13);
+}
+
+.feature-number {
+  color: #8e829f;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.feature-icon {
+  margin-top: 22px;
+  color: var(--pink);
+  font-size: 25px;
+}
+
+.feature-card h3 {
+  margin: 10px 0 4px;
+  font-size: 16px;
+}
+
+.feature-card p {
+  flex: 1;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.feature-link {
+  margin-top: 16px;
+}
+
+.message.error {
+  color: #fda4af;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 600px) {
-  .topbar { min-height: 65px; gap: 12px; }
-  .brand { font-size: 13px; }
-  .mark { width: 35px; height: 35px; }
-  nav { gap: 12px; }
-  nav a { font-size: 11px; }
-  .live { display: none; }
-  main { width: 92%; }
-  .hero { padding: 65px 0 48px; }
-  h1 { letter-spacing: -2px; }
-  .hero > p { font-size: 14px; }
-  .hero-meta { gap: 9px 15px; font-size: 9px; }
-  .section { padding-top: 48px; }
-  .section-head { align-items: start; }
-  .section-head .btn { padding: 10px; font-size: 10px; }
-  .tabs { display: grid; grid-template-columns: 1fr 1fr; }
-  .tab { padding: 11px 7px; font-size: 10px; }
-  .panel-head { padding: 18px; }
-  .panel-head h3 { font-size: 18px; }
-  .map-frame { min-height: 200px; }
-  .map-foot { padding: 12px 16px; font-size: 9px; }
-  .toolbar { flex-wrap: wrap; gap: 12px; padding: 13px; }
-  .count { min-width: 65px; }
-  .search { flex-basis: calc(100% - 85px); }
-  .toolbar select { width: 100%; max-width: none; }
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .info { padding: 11px; }
-  .name { font-size: 12px; }
-  .price { font-size: 11px; }
-  footer { flex-wrap: wrap; font-size: 9px; }
+  .hero::after {
+    width: 200px;
+    right: -35px;
+    opacity: .7;
+  }
+
+  .tracker-card {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tracker-form {
+    flex-direction: column;
+  }
+
+  .tracker-form input,
+  .tracker-form select,
+  .tracker-form .btn {
+    width: 100%;
+    max-width: none;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .feature-card {
+    min-height: 220px;
+    padding: 15px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    scroll-behavior: auto !important;
-    animation-duration: .01ms !important;
-    transition-duration: .01ms !important;
+  .feature-card,
+  .item,
+  nav a {
+    transition: none;
   }
 }
-3. app.js
-Das ist die wichtigste Datei für die Fehlerbehebung. Öffne app.js auf GitHub , ersetze alles und speichere.
-
-
-javascript
-
-const API = 'https://fortnite-api.com';
-const $ = (id) => document.getElementById(id);
-
-let shopItems = [];
-let mapData = null;
-let currentMode = 'br';
-
-const colors = {
-  common: '#a39ab8',
-  uncommon: '#65d66e',
-  rare: '#60a5fa',
-  epic: '#c084fc',
-  legendary: '#fb923c',
-  mythic: '#facc15',
-  exotic: '#5eead4',
-  marvel: '#fb7185',
-  dc: '#60a5fa',
-  icon: '#e5e7eb',
-  starwars: '#fde047'
-};
-
-function safe(value) {
-  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  })[char]);
-}
-
-async function getData(url) {
-  const response = await fetch(url, {
-    headers: { Accept: 'application/json' }
-  });
-
-  if (!response.ok) {
-    throw new Error(`API-Fehler ${response.status}`);
-  }
-
-  const json = await response.json();
-
-  if (json.status === 404 || json.error) {
-    throw new Error(json.error || 'Die API hat einen Fehler gemeldet.');
-  }
-
-  return json.data ?? json;
-}
-
-function updated() {
-  $('updated').textContent = 'AKTUALISIERT ' +
-    new Date().toLocaleTimeString('de-DE', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-}
-
-function setStatus(message) {
-  $('apiStatus').textContent = message;
-}
-
-function setMessage(message, isError = false) {
-  $('shopMessage').textContent = message;
-  $('shopMessage').classList.toggle('error', isError);
-}
-
-function getMapImage(data) {
-  const images = data?.images || {};
-
-  return images.pois
-    || images.blank
-    || images.all
-    || images.background
-    || data?.image
-    || null;
-}
-
-async function loadMap() {
-  if (currentMode === 'reload') return;
-
-  const button = $('refreshMap');
-  button.disabled = true;
-
-  $('mapStatus').textContent = 'KARTE WIRD GELADEN';
-  $('mapFrame').innerHTML =
-    '<div class="loading"><span class="spinner"></span> KARTE WIRD GELADEN</div>';
-
-  try {
-    // Die Battle-Royale-Karte liegt am /v1/map-Endpunkt.
-    mapData = await getData(`${API}/v1/map?language=de`);
-
-    const imageUrl = getMapImage(mapData);
-
-    if (!imageUrl) {
-      throw new Error('Die API liefert aktuell kein Kartenbild.');
-    }
-
-    const image = document.createElement('img');
-    image.alt = 'Aktuelle Fortnite Battle-Royale-Karte';
-    image.loading = 'eager';
-
-    image.onerror = () => {
-      $('mapFrame').innerHTML =
-        '<div class="loading">Das Kartenbild konnte nicht geladen werden. Bitte erneut versuchen.</div>';
-      $('mapStatus').textContent = 'KARTENBILD NICHT VERFÜGBAR';
-      $('poiCount').textContent = 'KARTENBILD NICHT VERFÜGBAR';
-    };
-
-    image.onload = () => {
-      $('mapStatus').textContent = 'KARTE VERFÜGBAR';
-      $('poiCount').textContent = Array.isArray(mapData?.pois)
-        ? `${mapData.pois.length} BENANNTE ORTE`
-        : 'BATTLE-ROYALE-INSELKARTE';
-      updated();
-    };
-
-    image.src = imageUrl;
-    $('mapFrame').replaceChildren(image);
-    setStatus('API VERBUNDEN');
-  } catch (error) {
-    $('mapFrame').innerHTML =
-      `<div class="loading">${safe(error.message)}<br><br>Prüfe die Verbindung und versuche es erneut.</div>`;
-
-    $('mapStatus').textContent = 'KARTE NICHT VERFÜGBAR';
-    $('poiCount').textContent = 'KARTENDATEN NICHT VERFÜGBAR';
-    setStatus('MAP-FEHLER');
-  } finally {
-    button.disabled = false;
-  }
-}
-
-/*
- * Shop-Einträge werden von einzelnen Items unterschieden.
- * finalPrice und regularPrice gehören zum Angebot und können
- * bei einem Bundle den gesamten Paketpreis darstellen.
- * Daher werden sie nicht auf jedes enthaltene Item übertragen.
- */
-function normalizeShop(data) {
-  const entries = Array.isArray(data?.entries)
-    ? data.entries
-    : Array.isArray(data)
-      ? data
-      : [];
-
-  const result = [];
-
-  for (const entry of entries) {
-    const items = [
-      ...(Array.isArray(entry.brItems) ? entry.brItems : []),
-      ...(Array.isArray(entry.items) ? entry.items : []),
-      ...(entry.item ? [entry.item] : [])
-    ];
-
-    if (!items.length && (entry.displayName || entry.name)) {
-      items.push(entry);
-    }
-
-    const isBundle = Boolean(entry.bundle) ||
-      Boolean(entry.bundleName) ||
-      items.length > 1;
-
-    for (const item of items) {
-      const rarityValue =
-        item.rarity?.value ||
-        item.series?.value ||
-        (typeof item.rarity === 'string' ? item.rarity : '') ||
-        'common';
-
-      const images = item.images || {};
-
-      /*
-       * Nur ein echter Item-Preis darf als Einzelpreis erscheinen.
-       * Ein Angebots- oder Paketpreis wird nicht ungeprüft übernommen.
-       */
-      let price = null;
-
-      const itemPrice = item.price ??
-        item.displayPrice ??
-        item.finalPrice;
-
-      if (
-        itemPrice !== undefined &&
-        itemPrice !== null &&
-        Number.isFinite(Number(itemPrice))
-      ) {
-        price = Number(itemPrice);
-      } else if (!isBundle && items.length === 1) {
-        const offerPrice = entry.finalPrice ?? entry.regularPrice;
-
-        if (
-          offerPrice !== undefined &&
-          offerPrice !== null &&
-          Number.isFinite(Number(offerPrice))
-        ) {
-          price = Number(offerPrice);
-        }
-      }
-
-      const name = item.name ||
-        item.displayName ||
-        item.title ||
-        'Unbekanntes Item';
-
-      result.push({
-        id: item.id || item.templateId || `${name}-${result.length}`,
-        name,
-        type: item.type?.displayValue ||
-          item.type?.value ||
-          (typeof item.type === 'string' ? item.type : 'Item'),
-        rarity: String(rarityValue),
-        image: images.featured ||
-          images.icon ||
-          images.smallIcon ||
-          item.image ||
-          item.icon ||
-          null,
-        price,
-        bundle: isBundle
-      });
-    }
-  }
-
-  const seen = new Set();
-
-  return result.filter((item) => {
-    const key = `${item.id}-${item.name}`;
-
-    if (seen.has(key)) return false;
-
-    seen.add(key);
-    return true;
-  });
-}
-
-async function loadShop() {
-  const button = $('refreshShop');
-  button.disabled = true;
-  setMessage('Der Item-Shop wird geladen …');
-
-  try {
-    const data = await getData(`${API}/v2/shop?language=de`);
-    const items = normalizeShop(data);
-
-    if (!items.length) {
-      throw new Error('Die API hat keine passenden Shop-Einträge geliefert.');
-    }
-
-    shopItems = items;
-    renderShop();
-
-    setMessage('');
-    setStatus('API VERBUNDEN');
-    updated();
-  } catch (error) {
-    setMessage(
-      `${error.message} Bitte später erneut versuchen.`,
-      true
-    );
-    $('shopGrid').replaceChildren();
-    $('itemCount').textContent = '—';
-    setStatus('SHOP-FEHLER');
-  } finally {
-    button.disabled = false;
-  }
-}
-
-function renderShop() {
-  const query = $('search').value
-    .trim()
-    .toLocaleLowerCase('de');
-
-  const sort = $('sort').value;
-
-  const list = shopItems.filter((item) =>
-    item.name.toLocaleLowerCase('de').includes(query)
-  );
-
-  if (sort === 'name') {
-    list.sort((a, b) => a.name.localeCompare(b.name, 'de'));
-  }
-
-  if (sort === 'price') {
-    list.sort((a, b) =>
-      (a.price ?? Infinity) - (b.price ?? Infinity)
-    );
-  }
-
-  $('itemCount').textContent = String(list.length);
-
-  $('shopGrid').innerHTML = list.map((item) => {
-    const rarityKey = item.rarity
-      .toLowerCase()
-      .replace(/[^a-z]/g, '');
-
-    const color = colors[rarityKey] || '#c084fc';
-
-    const image = item.image
-      ? `<img src="${safe(item.image)}" alt="${safe(item.name)}" loading="lazy">`
-      : '';
-
-    const price = item.price !== null
-      ? `<span class="price"><span class="coin">V</span>${item.price.toLocaleString('de-DE')}</span>`
-      : '<span class="price unknown">Einzelpreis nicht verfügbar</span>';
-
-    const type = item.bundle
-      ? `${item.type} · Paketinhalt`
-      : item.type;
-
-    return `
-      <article class="item">
-        <div class="art">
-          ${image}
-          <span class="type">${safe(type)}</span>
-        </div>
-        <div class="info">
-          <div class="name">${safe(item.name)}</div>
-          <div class="item-bottom">
-            <span class="rarity-label" style="color:${color}">
-              ${safe(item.rarity)}
-            </span>
-            ${price}
-          </div>
-        </div>
-      </article>
-    `;
-  }).join('');
-
-  if (!list.length) {
-    setMessage(
-      query
-        ? 'Keine passenden Items gefunden.'
-        : 'Aktuell sind keine Shop-Einträge verfügbar.'
-    );
-  }
-}
-
-function mode(name) {
-  currentMode = name;
-
-  document.querySelectorAll('.tab').forEach((tab) => {
-    tab.classList.toggle('active', tab.dataset.mode === name);
-  });
-
-  const isReload = name === 'reload';
-
-  $('reloadNotice').classList.toggle('hidden', !isReload);
-  $('mapFrame').classList.toggle('hidden', isReload);
-  $('refreshMap').disabled = isReload;
-
-  $('mapTitle').textContent = isReload
-    ? 'Reload Map'
-    : 'Battle Royale';
-
-  $('mapSubtitle').textContent = isReload
-    ? 'Eine separate, verifizierte Reload-Karte ist derzeit nicht angebunden.'
-    : 'Die aktuelle Inselkarte';
-
-  $('mapCode').textContent = isReload ? 'RELOAD_BETA' : 'MAP_001';
-
-  if (isReload) {
-    $('mapStatus').textContent = 'KEINE VERIFIZIERTEN DATEN';
-    $('poiCount').textContent = 'RELOAD-KARTE NICHT VERFÜGBAR';
-  } else if (!mapData) {
-    loadMap();
-  }
-}
-
-$('refreshMap').addEventListener('click', loadMap);
-$('refreshShop').addEventListener('click', loadShop);
-$('search').addEventListener('input', renderShop);
-$('sort').addEventListener('change', renderShop);
-
-document.querySelectorAll('.tab').forEach((tab) => {
-  tab.addEventListener('click', () => mode(tab.dataset.mode));
-});
-
-$('year').textContent = new Date().getFullYear();
-
-loadMap();
-loadShop();
-
-// Aktualisieren, solange die Seite geöffnet ist.
-setInterval(() => {
-  if (document.visibilityState === 'visible') {
-    if (currentMode === 'br') loadMap();
-    loadShop();
-  }
-}, 30 * 60 * 1000);
