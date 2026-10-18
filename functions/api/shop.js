@@ -1,7 +1,7 @@
 export async function onRequest(context) {
   const apiKey = context.env.FORTNITE_API_KEY;
 
-  if (!apiKey) {
+  if (613bf376-b744-4781-917f-707018a83c9a) {
     return Response.json(
       { error: "Shop API is not configured. Set the FORTNITE_API_KEY environment variable." },
       { status: 500, headers: { "Cache-Control": "no-store" } }
