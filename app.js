@@ -1,8 +1,7 @@
 
 "use strict";
 
-// Öffentliche Shop-Datenquelle. Kein API-Key im Browser erforderlich.
-const SHOP_API_URL = "https://fortnite-api.com/v2/shop?language=de";
+const API_URL = "https://fortnite-api.com/v2/shop?language=de";
 
 const grid = document.getElementById("shopGrid");
 const statusBox = document.getElementById("shopStatus");
@@ -10,109 +9,104 @@ const searchInput = document.getElementById("shopSearch");
 const refreshButton = document.getElementById("refreshShop");
 const countLabel = document.getElementById("itemCount");
 
-let allItems = [];
+let items = [];
 
-function firstText(...values) {
+function textValue(...values) {
   return values.find(value =>
-    typeof value === "string" && value.trim().length > 0
+    typeof value === "string" && value.trim()
   ) || "";
 }
 
-function findImage(item, entry) {
-  const renderImages = item?.newDisplayAsset?.renderImages;
-  const entryRenderImages = entry?.newDisplayAsset?.renderImages;
-
-  return firstText(
+function getImage(item, entry) {
+  const candidates = [
     item?.images?.featured,
     item?.images?.icon,
     item?.images?.other,
     item?.images?.smallIcon,
     item?.displayAssets?.[0]?.url,
     item?.displayAssets?.[0]?.image,
-    renderImages?.[0]?.image,
-    renderImages?.[0]?.url,
+    item?.newDisplayAsset?.renderImages?.[0]?.image,
+    item?.newDisplayAsset?.renderImages?.[0]?.url,
     entry?.bundle?.image,
     entry?.displayAssets?.[0]?.url,
     entry?.displayAssets?.[0]?.image,
-    entryRenderImages?.[0]?.image,
-    entryRenderImages?.[0]?.url
+    entry?.newDisplayAsset?.renderImages?.[0]?.image
+  ];
+
+  return candidates.find(value =>
+    typeof value === "string" && /^https?:\/\//i.test(value)
+  ) || "";
+}
+
+function getEntries(data) {
+  if (Array.isArray(data?.entries)) return data.entries;
+
+  const sections = [
+    data?.featured?.entries,
+    data?.daily?.entries,
+    data?.specialFeatured?.entries,
+    data?.specialDaily?.entries,
+    data?.collaborations?.entries
+  ];
+
+  return sections.flatMap(section =>
+    Array.isArray(section) ? section : []
   );
 }
 
-function findRarity(item) {
-  return firstText(
-    item?.rarity?.displayValue,
-    item?.series?.name,
-    item?.rarity?.value,
-    item?.type?.displayValue,
-    item?.type?.value
-  ) || "Fortnite";
-}
-
-function normalizeShop(json) {
-  const data = json?.data;
-  let entries = [];
-
-  // Fortnite-API.com v2 liefert üblicherweise data.entries.
-  if (Array.isArray(data?.entries)) {
-    entries = data.entries;
-  } else {
-    // Fallback für Antworten mit getrennten Shop-Sektionen.
-    const sections = [
-      data?.featured?.entries,
-      data?.daily?.entries,
-      data?.specialFeatured?.entries,
-      data?.specialDaily?.entries,
-      data?.collaborations?.entries
-    ];
-
-    entries = sections.flatMap(section =>
-      Array.isArray(section) ? section : []
-    );
-  }
-
+function parseItems(json) {
   const result = [];
 
-  for (const entry of entries) {
-    const items = Array.isArray(entry?.br) && entry.br.length
+  for (const entry of getEntries(json?.data)) {
+    const listedItems = Array.isArray(entry?.br) && entry.br.length
       ? entry.br
       : Array.isArray(entry?.items) && entry.items.length
         ? entry.items
         : [entry];
 
-    const bundleName = entry?.bundle?.name;
-
-    for (const item of items) {
-      const image = findImage(item, entry);
-      const name = firstText(
+    for (const item of listedItems) {
+      const name = textValue(
         item?.name,
         item?.displayName,
-        bundleName,
+        entry?.bundle?.name,
         entry?.name,
         entry?.devName
       );
 
-      if (!image || !name) continue;
+      const image = getImage(item, entry);
+      if (!name || !image) continue;
+
+      const rarity = textValue(
+        item?.rarity?.displayValue,
+        item?.series?.name,
+        item?.rarity?.value,
+        item?.type?.displayValue
+      ) || "Fortnite";
+
+      const type = textValue(
+        item?.type?.displayValue,
+        item?.type?.value,
+        entry?.section?.name,
+        entry?.layout?.name
+      ) || "Item Shop";
+
+      let price = null;
+
+      if (Number.isFinite(entry?.finalPrice)) {
+        price = entry.finalPrice;
+      } else if (Number.isFinite(entry?.price?.finalPrice)) {
+        price = entry.price.finalPrice;
+      } else if (Number.isFinite(entry?.regularPrice)) {
+        price = entry.regularPrice;
+      }
 
       result.push({
-        id: item?.id || entry?.offerId || `${name}-${image}`,
+        id: item?.id || `${name}-${image}`,
         name,
         image,
-        rarity: findRarity(item),
-        type: firstText(
-          item?.type?.displayValue,
-          item?.type?.value,
-          item?.type,
-          entry?.layout?.name,
-          entry?.section?.name
-        ) || "Item Shop",
-        price: Number.isFinite(entry?.finalPrice)
-          ? entry.finalPrice
-          : Number.isFinite(entry?.price?.finalPrice)
-            ? entry.price.finalPrice
-            : Number.isFinite(entry?.regularPrice)
-              ? entry.regularPrice
-              : null
+        rarity,
+        type,
+        price
       });
     }
   }
@@ -127,19 +121,28 @@ function normalizeShop(json) {
   });
 }
 
-function makeElement(tag, className, text) {
+function createElement(tag, className, content) {
   const element = document.createElement(tag);
-
   if (className) element.className = className;
-  if (text !== undefined) element.textContent = text;
-
+  if (content !== undefined) element.textContent = content;
   return element;
 }
 
-function renderShop() {
-  const query = (searchInput?.value || "").trim().toLowerCase();
+function showStatus(message, loading = false) {
+  statusBox.classList.remove("hidden");
+  statusBox.replaceChildren();
 
-  const filtered = allItems.filter(item =>
+  if (loading) {
+    statusBox.append(createElement("span", "spinner"));
+  }
+
+  statusBox.append(createElement("span", "", message));
+}
+
+function renderItems() {
+  const query = searchInput.value.trim().toLowerCase();
+
+  const filtered = items.filter(item =>
     item.name.toLowerCase().includes(query) ||
     item.rarity.toLowerCase().includes(query) ||
     item.type.toLowerCase().includes(query)
@@ -148,24 +151,19 @@ function renderShop() {
   grid.replaceChildren();
   countLabel.textContent = `${filtered.length} ITEMS`;
 
-  if (filtered.length === 0) {
-    const message = allItems.length
-      ? "Keine Items gefunden. Versuche einen anderen Suchbegriff."
-      : "Keine Items mit Bildern gefunden. Die API-Antwort muss geprüft werden.";
-
-    statusBox.classList.remove("hidden");
-    statusBox.replaceChildren(makeElement("span", "", message));
+  if (!filtered.length) {
+    showStatus(items.length
+      ? "Keine passenden Items gefunden."
+      : "Keine Shop-Items mit Bildern gefunden. Bitte API-Antwort prüfen.");
     return;
   }
 
   statusBox.classList.add("hidden");
-
   const fragment = document.createDocumentFragment();
 
   for (const item of filtered) {
-    const card = makeElement("article", "shop-card");
-
-    const imageArea = makeElement("div", "shop-card-image");
+    const card = createElement("article", "shop-card");
+    const imageArea = createElement("div", "shop-card-image");
     const image = document.createElement("img");
 
     image.src = item.image;
@@ -174,27 +172,30 @@ function renderShop() {
     image.decoding = "async";
 
     image.addEventListener("error", () => {
-      imageArea.classList.add("image-error");
       image.remove();
       imageArea.append(
-        makeElement("span", "image-fallback", "Bild nicht verfügbar")
+        createElement("span", "image-fallback", "Bild nicht verfügbar")
       );
     }, { once: true });
 
-    const rarity = makeElement("span", "shop-rarity", item.rarity);
-    imageArea.append(image, rarity);
+    imageArea.append(
+      image,
+      createElement("span", "shop-rarity", item.rarity)
+    );
 
-    const details = makeElement("div", "shop-card-details");
-    const title = makeElement("h3", "", item.name);
-    const type = makeElement("p", "item-type", item.type);
-
-    details.append(title, type);
+    const details = createElement("div", "shop-card-details");
+    details.append(
+      createElement("h3", "", item.name),
+      createElement("p", "item-type", item.type)
+    );
 
     if (item.price !== null) {
-      const price = makeElement("div", "shop-price");
+      const price = createElement("div", "shop-price");
       price.append(
-        makeElement("span", "vbuck-symbol", "V"),
-        document.createTextNode(`${item.price.toLocaleString("de-DE")} V-Bucks`)
+        createElement("span", "vbuck-symbol", "V"),
+        document.createTextNode(
+          `${item.price.toLocaleString("de-DE")} V-Bucks`
+        )
       );
       details.append(price);
     }
@@ -208,15 +209,11 @@ function renderShop() {
 
 async function loadShop() {
   refreshButton.disabled = true;
-  refreshButton.setAttribute("aria-busy", "true");
-  statusBox.classList.remove("hidden");
-  statusBox.replaceChildren(
-    makeElement("span", "loading-spinner"),
-    makeElement("span", "", "Item-Shop wird geladen ...")
-  );
+  showStatus("Item-Shop wird geladen ...", true);
+  countLabel.textContent = "LÄDT ...";
 
   try {
-    const response = await fetch(SHOP_API_URL, {
+    const response = await fetch(API_URL, {
       headers: { Accept: "application/json" },
       cache: "no-store"
     });
@@ -228,43 +225,33 @@ async function loadShop() {
     const json = await response.json();
 
     if (json?.status && json.status !== 200) {
-      throw new Error(json.error || "Die API hat einen Fehler zurückgegeben.");
+      throw new Error(json.error || "API-Fehler");
     }
 
-    allItems = normalizeShop(json);
+    items = parseItems(json);
 
-    if (allItems.length === 0) {
+    if (!items.length) {
       countLabel.textContent = "0 ITEMS";
-      statusBox.replaceChildren(
-        makeElement(
-          "span",
-          "",
-          "Die API hat geantwortet, aber keine verwendbaren Shop-Bilder geliefert. Öffne die Entwicklerkonsole für Details."
-        )
+      showStatus(
+        "Die API lieferte keine verwendbaren Shop-Bilder. Öffne F12 → Console für Details."
       );
-      console.warn("Unerwartete Shop-Antwort:", json);
+      console.warn("Shop-Antwort:", json);
       return;
     }
 
-    renderShop();
+    renderItems();
   } catch (error) {
-    console.error("DROPZONE Item-Shop:", error);
-
-    countLabel.textContent = "OFFLINE";
-    statusBox.replaceChildren(
-      makeElement(
-        "span",
-        "",
-        "Shop konnte nicht geladen werden. Prüfe deine Internetverbindung, die API und die Browserkonsole."
-      )
+    console.error("DROPZONE Shop-Fehler:", error);
+    countLabel.textContent = "FEHLER";
+    showStatus(
+      "Shop konnte nicht geladen werden. Mögliche Ursachen: API nicht erreichbar, Zugriff verweigert oder Anfrage blockiert."
     );
   } finally {
     refreshButton.disabled = false;
-    refreshButton.removeAttribute("aria-busy");
   }
 }
 
-searchInput.addEventListener("input", renderShop);
+searchInput.addEventListener("input", renderItems);
 refreshButton.addEventListener("click", loadShop);
 
 loadShop();
