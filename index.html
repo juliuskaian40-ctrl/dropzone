@@ -1,167 +1,78 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#050208">
-  <meta name="description" content="DROPZONE – Dein Fortnite Item Shop im Neon-Lila-Style.">
-  <title>DROPZONE — Fortnite Item Shop</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="./styles.css">
-  <script src="./app.js" defer></script>
+  <meta name="theme-color" content="#090611">
+  <title>DROPZONE — Fortnite Shop & News</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
 </head>
-
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
-  <div class="scanlines"></div>
-
   <header class="site-header">
-    <a class="brand" href="#dashboard" aria-label="DROPZONE Startseite">
-      <span class="brand-wordmark">DROPZONE<span>.</span></span>
+    <a class="brand" href="index.html" aria-label="Dropzone Startseite">
+      <img src="Neon-Dropzone-Emblem%20in%20Violett.png" alt="" class="brand-mark"
+           onerror="this.style.display='none'">
+      <span>DROP<span class="accent">ZONE</span><i>.</i></span>
     </a>
-
-    <nav class="main-nav" aria-label="Hauptnavigation">
-      <a href="#dashboard">Dashboard</a>
-      <a href="#shop">Item Shop</a>
+    <nav class="main-nav">
+      <a class="active" href="index.html" data-i18n="navHome">Startseite</a>
+      <a href="map.html" data-i18n="navMap">Battle Royale Map</a>
+      <a href="#shop" data-i18n="navShop">Item-Shop</a>
     </nav>
-
-    <a class="header-button" href="#shop">
-      <span class="status-dot"></span>
-      FORTNITE SHOP
-    </a>
+    <label class="language-control">
+      <span class="sr-only" data-i18n="languageLabel">Sprache</span>
+      <select id="languageSelect" aria-label="Language">
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="en">🇬🇧 English</option>
+      </select>
+    </label>
   </header>
 
   <main>
-    <section class="hero" id="dashboard">
-      <div class="hero-grid"></div>
-
-      <div class="hero-content">
-        <div class="eyebrow">
-          <span></span> YOUR FORTNITE HUB
-        </div>
-
-        <h1>DROP INTO<br><span>THE ACTION.</span></h1>
-
-        <p class="hero-description">
-          Entdecke die neuesten Fortnite-Items und finde deine nächsten Lieblingsskins.
-        </p>
-
-        <a class="button button-primary" href="#shop">
-          SHOP ENTDECKEN <span>↘</span>
-        </a>
-
-        <div class="hero-tags">
-          <span>DAILY ROTATION</span>
-          <span>FORTNITE ITEMS</span>
-          <span>DROPZONE STYLE</span>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow" data-i18n="heroEyebrow">DEIN FORTNITE HUB</p>
+        <h1><span data-i18n="heroLine1">DROP IN.</span><br><span class="accent" data-i18n="heroLine2">GEAR UP.</span></h1>
+        <p class="hero-description" data-i18n="heroText">Dein Hub für den Fortnite-Shop und die Battle-Royale-Karte.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#shop" data-i18n="heroShop">Shop ansehen</a>
+          <a class="button button-ghost" href="map.html" data-i18n="heroMap">Karte öffnen ↗</a>
         </div>
       </div>
-
-      <div class="hero-art">
-        <div class="orbit orbit-one"></div>
-        <div class="orbit orbit-two"></div>
-        <div class="logo-glow"></div>
-
-        <img
-          class="hero-logo"
-          src="./Neon-Dropzone-Emblem%20in%20Violett.png"
-          alt="DROPZONE Neon-Logo in Violett und Schwarz"
-          fetchpriority="high"
-        >
-
-        <span class="floating-tag tag-top">ITEM SHOP</span>
-        <span class="floating-tag tag-bottom">BATTLE ROYALE</span>
+      <div class="hero-logo">
+        <img src="Neon-Dropzone-Emblem%20in%20Violett.png" alt="Dropzone Emblem"
+             onerror="this.style.display='none'">
+        <div class="logo-fallback">DZ<span>.</span></div>
       </div>
-
-      <div class="hero-bottom-line"></div>
     </section>
 
-    <section class="shop-section" id="shop">
-      <div class="section-kicker">01 / DAILY ROTATION</div>
-
+    <section class="section" id="shop">
       <div class="section-heading">
         <div>
-          <div class="eyebrow"><span></span> THE LATEST DROPS</div>
-          <h2>ITEM <span>SHOP</span></h2>
-          <p class="section-description">
-            Aktuelle Angebote mit Bildern, Seltenheit und Preisen.
-          </p>
+          <p class="eyebrow" data-i18n="shopEyebrow">TÄGLICH NEU</p>
+          <h2 data-i18n="shopTitle">FORTNITE ITEM-SHOP<span class="accent">.</span></h2>
         </div>
-
-        <button class="button button-ghost" id="refresh-button" type="button">
-          <span class="refresh-icon">↻</span> Neu laden
-        </button>
+        <button id="refreshShop" class="button button-ghost" type="button" data-i18n="refresh">Aktualisieren</button>
       </div>
-
-      <div class="shop-toolbar">
-        <label class="search-box">
-          <span class="search-icon">⌕</span>
-          <input
-            id="search-input"
-            type="search"
-            placeholder="Items durchsuchen..."
-            autocomplete="off"
-            aria-label="Items durchsuchen"
-          >
-          <span class="search-hint">SEARCH</span>
-        </label>
-
-        <div class="shop-count" id="shop-count">
-          ITEMS <span>—</span>
-        </div>
-      </div>
-
-      <div class="shop-status" id="shop-status" role="status" aria-live="polite">
-        <span class="status-dot"></span>
-        VERBINDE MIT DER ZONE...
-      </div>
-
-      <div class="shop-grid" id="shop-grid">
-        <div class="loading-panel">
-          <div class="loading-ring"></div>
-          <p>LOOT WIRD GELADEN</p>
-          <span>BITTE WARTEN...</span>
-        </div>
-      </div>
-
-      <div class="empty-state" id="empty-state" hidden>
-        <span class="empty-symbol">Ø</span>
-        <h3>NICHTS GEFUNDEN</h3>
-        <p>Versuche einen anderen Suchbegriff.</p>
-      </div>
+      <p id="shopStatus" class="status" role="status" data-i18n="shopLoading">Shop wird geladen …</p>
+      <div id="shopGrid" class="shop-grid"></div>
+      <p class="fine-print" data-i18n="shopNote">Die Verfügbarkeit hängt von der API ab. Dropzone ist ein Fan-Projekt und nicht mit Epic Games verbunden.</p>
     </section>
 
-    <section class="about-section">
-      <div class="about-logo">
-        <img
-          src="./Neon-Dropzone-Emblem%20in%20Violett.png"
-          alt="DROPZONE Logo"
-          loading="lazy"
-        >
+    <section class="section map-promo">
+      <div>
+        <p class="eyebrow" data-i18n="mapEyebrow">PLAN YOUR DROP</p>
+        <h2 data-i18n="mapTitle">DIE INSEL WARTET<span class="accent">.</span></h2>
+        <p data-i18n="mapText">Öffne die separate Karte und wähle aus, welche Karteninformationen du sehen möchtest.</p>
       </div>
-
-      <div class="about-copy">
-        <div class="eyebrow"><span></span> WELCOME TO THE ZONE</div>
-        <h2>BUILT DIFFERENT.<br><span>GLOW DIFFERENT.</span></h2>
-        <p>
-          Dropzone bringt den Fortnite Item Shop in eine neue Dimension:
-          tiefschwarz, leuchtend violett und voller Neon-Vibes.
-        </p>
-        <a class="text-link" href="#shop">ENTDECKE DEN SHOP <span>↗</span></a>
-      </div>
+      <a class="button button-primary" href="map.html" data-i18n="mapButton">Battle Royale Map öffnen ↗</a>
     </section>
   </main>
 
   <footer class="site-footer">
-    <a href="#dashboard" class="footer-brand">DROPZONE<span>.</span></a>
-    <p>UNOFFICIAL FORTNITE ITEM SHOP EXPERIENCE</p>
-    <a href="#dashboard" class="back-to-top">BACK TO TOP ↑</a>
+    <span>© <span id="year"></span> DROPZONE</span>
+    <span data-i18n="footerNote">Fan-Projekt — nicht mit Epic Games verbunden.</span>
   </footer>
 </body>
 </html>
