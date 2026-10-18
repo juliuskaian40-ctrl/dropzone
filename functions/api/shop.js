@@ -1,5 +1,5 @@
 export async function onRequest(context) {
-  const apiKey = "DEIN_KEY_HIER_EINTRAGEN";
+  const apiKey = 613bf376-b744-4781-917f-707018a83c9a;
 
   const requestedLanguage = new URL(context.request.url).searchParams.get("language") || "de";
   const language = ["de", "en"].includes(requestedLanguage) ? requestedLanguage : "de";
