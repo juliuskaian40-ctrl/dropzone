@@ -25,7 +25,7 @@ const translations = {
   }
 };
 
-const API_KEY = ""; // Optional: paste your Fortnite-API.com key here if your endpoint requires it.
+const API_KEY = 613bf376-b744-4781-917f-707018a83c9a; // Optional: paste your Fortnite-API.com key here if your endpoint requires it.
 const SHOP_URL = "https://fortnite-api.com/v2/shop?language=de";
 
 function getLanguage() {
