@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090611">
+  <title>DROPZONE — Battle Royale Map</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="map.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <img src="Neon-Dropzone-Emblem%20in%20Violett.png" alt="" class="brand-mark"
+           onerror="this.style.display='none'">
+      <span>DROP<span class="accent">ZONE</span><i>.</i></span>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html" data-i18n="navHome">Startseite</a>
+      <a class="active" href="map.html" data-i18n="navMap">Battle Royale Map</a>
+      <a href="index.html#shop" data-i18n="navShop">Item-Shop</a>
+    </nav>
+    <label class="language-control">
+      <span class="sr-only">Language</span>
+      <select id="languageSelect" aria-label="Language">
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="en">🇬🇧 English</option>
+      </select>
+    </label>
+  </header>
+
+  <main class="section map-layout">
+    <p class="eyebrow">DROPZONE / THE ISLAND</p>
+    <h1 data-i18n="mapHeading">BATTLE ROYALE <span class="accent">MAP.</span></h1>
+    <p class="map-note" data-i18n="mapIntro">Erkunde die Fortnite-Karte und passe die angezeigten Informationen an.</p>
+
+    <div class="map-toolbar">
+      <label><input type="checkbox" id="showLocations" checked> <span data-i18n="showLocations">Ortsnamen anzeigen</span></label>
+      <label><input type="checkbox" id="showChests"> <span data-i18n="showChests">Truhen anzeigen</span></label>
+      <label><input type="checkbox" id="showLoot"> <span data-i18n="showLoot">Loot anzeigen</span></label>
+      <label><input type="checkbox" id="showBosses"> <span data-i18n="showBosses">Bosse/NPCs anzeigen</span></label>
+      <button id="reloadMap" type="button" class="button button-ghost" data-i18n="reloadMap">Karte neu laden</button>
+    </div>
+
+    <div class="map-frame">
+      <img id="battleMap" alt="Fortnite Battle Royale map" hidden>
+      <div id="mapStatus" class="map-status" role="status">Karte wird geladen …</div>
+    </div>
+    <div class="map-links" id="mapPlaces"></div>
+    <p id="filterStatus" class="map-note" role="status"></p>
+    <p class="map-note" data-i18n="mapDisclaimer">Hinweis: Die API liefert das Kartenbild und Ortsnamen. Exakte Truhen-, Loot- und NPC-Spawnpositionen sind in dieser Datenquelle nicht enthalten. Diese Schalter zeigen deshalb einen Hinweis, statt erfundene Positionen anzuzeigen.</p>
+    <p><a id="openOriginalMap" class="button button-ghost" href="#" target="_blank" rel="noopener" data-i18n="openMap">Kartenbild separat öffnen ↗</a></p>
+  </main>
+
+  <footer class="site-footer">
+    <span>© <span id="year"></span> DROPZONE</span>
+    <span data-i18n="footerNote">Fan-Projekt — nicht mit Epic Games verbunden.</span>
+  </footer>
+</body>
+</html>
